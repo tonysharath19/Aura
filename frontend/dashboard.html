@@ -398,6 +398,47 @@
             margin-top: 0.25rem;
         }
 
+        /* --- GOAL STATUS --- */
+        .goal-status-card{
+            border:1px solid rgba(155,92,255,.28);
+            background:linear-gradient(135deg,rgba(16,20,40,.92),rgba(9,14,29,.88));
+            border-radius:var(--radius-lg);
+            padding:1.15rem 1.25rem;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:1rem;
+            box-shadow:0 10px 30px rgba(0,0,0,.22), inset 0 1px rgba(255,255,255,.03);
+        }
+        .goal-status-left{display:flex;align-items:center;gap:.9rem;min-width:0}
+        .goal-status-icon{
+            width:42px;height:42px;border-radius:12px;flex:0 0 auto;
+            display:grid;place-items:center;
+            background:rgba(155,92,255,.12);
+            border:1px solid rgba(155,92,255,.3);
+            color:var(--purple-bright);
+        }
+        .goal-status-card.reached{
+            border-color:rgba(114,214,92,.38);
+            background:linear-gradient(135deg,rgba(12,29,22,.96),rgba(9,18,28,.9));
+        }
+        .goal-status-card.reached .goal-status-icon{
+            background:rgba(114,214,92,.12);
+            border-color:rgba(114,214,92,.36);
+            color:var(--green);
+        }
+        .goal-status-kicker{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+        .goal-status-title{font-size:1.02rem;font-weight:800;color:#fff;margin-top:.15rem}
+        .goal-status-date{font-size:.82rem;color:var(--muted);margin-top:.2rem}
+        .goal-status-card.reached .goal-status-date{color:#c7e8cd}
+        .goal-status-action{flex:0 0 auto}
+        @media (max-width:768px){
+            .goal-status-card{flex-direction:column;align-items:stretch;text-align:center;padding:1rem}
+            .goal-status-left{justify-content:center}
+            .goal-status-action{width:100%}
+            .goal-status-action .btn-primary-glow{width:100%;justify-content:center}
+        }
+
         .hero-stats-row {
             display: flex;
             gap: 1.5rem;
@@ -1811,6 +1852,21 @@ body.aura-chat-is-open .mobile-aura-orb{
                     <div class="hero-banner">
                         <div><h1 id="dashGreeting">Good morning</h1><p>AURA has your wellness day mapped out.</p><div class="hero-stats-row"><div class="hero-stat-chip"><i data-lucide="calendar"></i><span id="dashJourneyDay">Journey Day 1</span></div><div class="hero-stat-chip"><i data-lucide="flame"></i><span id="dashStreakCount">0 Day Streak</span></div><div class="hero-stat-chip"><i data-lucide="sparkles"></i><span id="dashDailyAuraScore">Daily AURA 0 / 100</span></div></div></div>
                     </div>
+                    <div id="goalStatusCard" class="goal-status-card" aria-live="polite">
+                        <div class="goal-status-left">
+                            <div class="goal-status-icon"><i data-lucide="target"></i></div>
+                            <div>
+                                <div class="goal-status-kicker" id="goalStatusKicker">Current Goal</div>
+                                <div class="goal-status-title" id="goalStatusTitle">Goal date loading…</div>
+                                <div class="goal-status-date" id="goalStatusDate">Loading your current goal date</div>
+                            </div>
+                        </div>
+                        <div class="goal-status-action">
+                            <button type="button" class="btn-primary-glow" onclick="window.location.href='wizard.html'" id="goalStatusButton">
+                                <i data-lucide="edit-3"></i> Edit Health Profile
+                            </button>
+                        </div>
+                    </div>
                     <div class="glass-card"><div class="card-header-row"><div><h2 class="section-title">Today's AURA Plan</h2><p class="section-sub">Personalized for you by AURA AI</p></div></div><div class="plan-grid">
                         <div class="plan-card" onclick="showSection('workout')"><div class="plan-card-tag move"><i data-lucide="dumbbell"></i> MOVE</div><div><div class="plan-main-title" id="dashPlanMoveTitle">Daily Workout</div><div class="plan-metric-sub" id="dashPlanMoveSub">Your personalized workout</div></div></div>
                         <div class="plan-card" onclick="showSection('nutrition')"><div class="plan-card-tag fuel"><i data-lucide="utensils"></i> FUEL</div><div><div class="plan-main-title" id="dashPlanFuelTitle">Daily Nutrition</div><div class="plan-metric-sub" id="dashPlanFuelSub">Your personalized meals</div></div></div>
@@ -2155,10 +2211,18 @@ body.aura-chat-is-open .mobile-aura-orb{
                 if(sessionResult.error)throw sessionResult.error;
 
                 let session=sessionResult.data?.session||null;
-                const expiresAt=Number(session?.expires_at||0)*1000;
-                if(!session || (expiresAt && expiresAt<Date.now()+60000)){
+                if(!session){
+                    window.location.replace('login.html');
+                    return;
+                }
+
+                const expiresAt=Number(session.expires_at||0)*1000;
+                if(expiresAt && expiresAt<Date.now()+60000){
                     const refreshResult=await db.auth.refreshSession();
-                    if(refreshResult.error)throw refreshResult.error;
+                    if(refreshResult.error){
+                        window.location.replace('login.html');
+                        return;
+                    }
                     session=refreshResult.data?.session||null;
                 }
                 if(!session){
@@ -2364,12 +2428,65 @@ body.aura-chat-is-open .mobile-aura-orb{
             },15000);
         }
 
+        function getDashboardGoalDate(){
+            const healthDate=dashboardState.health_plan?.goal_date;
+            const calculatedDate=dashboardState.calculated?.goalDate;
+            const goal=getPrimaryGoal();
+            return healthDate || calculatedDate || goal?.target_date || null;
+        }
+
+        function formatGoalDate(dateString){
+            if(!dateString)return 'No goal date set';
+            const raw=String(dateString).slice(0,10);
+            const parts=raw.split('-').map(Number);
+            if(parts.length!==3 || parts.some(Number.isNaN))return raw;
+            const d=new Date(parts[0],parts[1]-1,parts[2]);
+            return d.toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'});
+        }
+
+        function updateGoalStatusUI(){
+            const card=document.getElementById('goalStatusCard');
+            const kicker=document.getElementById('goalStatusKicker');
+            const title=document.getElementById('goalStatusTitle');
+            const date=document.getElementById('goalStatusDate');
+            const button=document.getElementById('goalStatusButton');
+            if(!card||!kicker||!title||!date||!button)return;
+
+            const goalDate=getDashboardGoalDate();
+            const today=getTodayISO();
+
+            card.classList.remove('reached');
+            if(!goalDate){
+                kicker.textContent='Current Goal';
+                title.textContent='No goal date set';
+                date.textContent='Set your goal date in your health profile.';
+                button.innerHTML='<i data-lucide="edit-3"></i> Set Goal Date';
+                return;
+            }
+
+            const reached=String(goalDate).slice(0,10) <= today;
+            if(reached){
+                card.classList.add('reached');
+                kicker.textContent='Goal Status';
+                title.textContent='Goal reached';
+                date.textContent=`Your goal date was ${formatGoalDate(goalDate)}. Set a new goal to continue your AURA journey.`;
+                button.innerHTML='<i data-lucide="edit-3"></i> Set New Goal Date';
+            }else{
+                kicker.textContent='Current Goal';
+                title.textContent='Goal in progress';
+                date.textContent=`Target date: ${formatGoalDate(goalDate)}`;
+                button.innerHTML='<i data-lucide="edit-3"></i> Edit Health Profile';
+            }
+            lucide.createIcons();
+        }
+
         function renderAURADashboard(){
             const profile=dashboardState.profile||{}, fullName=profile.full_name||'Champion';
             const auraTotal=Number(dashboardState.auraTotal||dashboardState.calculated?.auraTotal||0);
             document.getElementById('topUserName').textContent=fullName;
             document.getElementById('topUserInitials').textContent=fullName.trim().charAt(0).toUpperCase()||'A';
             syncAuraPointsUI();
+            updateGoalStatusUI();
             document.getElementById('dashGreeting').textContent=`${getGreeting()}, ${fullName}`;
             const overallStreak=getConsecutiveDayStreaks(); document.getElementById('dashStreakCount').textContent=`${overallStreak.current} Day Streak`;
             document.getElementById('dashJourneyDay').textContent=`Journey Day ${dashboardState.current_workout?.day_number||1}`;
@@ -3262,7 +3379,7 @@ SELECTED ITEM:
 ${contextSelection||'null'}
 
 IMPORTANT FOR A SELECTED WORKOUT OR MEAL:
-The selected item's JSON is authoritative for the item currently shown in AURA. Explain that exact exercise or meal. Do not substitute another item, invent missing values, or contradict displayed values. If a displayed field is null or absent, say it is not specified.
+The selected item's JSON is authoritative for the item currently shown in AURA. The selected item is present even if the user's profile does not contain a separate stored workout assignment. Explain that exact exercise or meal. Do not say that no exercise/workout/meal is selected when SELECTED ITEM contains an object. Do not substitute another item, invent missing values, or contradict displayed values. If a displayed field is null or absent, say it is not specified.
 
 USER QUESTION:
 ${q}`;
@@ -3730,11 +3847,20 @@ ${q}`;
             const workoutPlanId = dashboardState?.workout_plan?.id;
             const todayString = getTodayISO();
 
-            const { data: todayWorkout } = await db.from("workout_days").select("*").eq("user_id", userId).eq("workout_plan_id", workoutPlanId).eq("workout_date", todayString).maybeSingle();
-            if (todayWorkout) return todayWorkout;
+            if (!userId || !workoutPlanId) return null;
 
-            const { data: nextWorkout } = await db.from("workout_days").select("*").eq("user_id", userId).eq("workout_plan_id", workoutPlanId).eq("completed", false).order("day_number").limit(1).maybeSingle();
-            return nextWorkout || null;
+            const { data: todayWorkout, error } = await db
+                .from("workout_days")
+                .select("*")
+                .eq("user_id", userId)
+                .eq("workout_plan_id", workoutPlanId)
+                .eq("workout_date", todayString)
+                .maybeSingle();
+
+            if (error) throw error;
+
+            // Never substitute yesterday/another future day for Today's workout.
+            return todayWorkout || null;
         }
 
         async function refreshWorkoutContext_5C9() {
@@ -4707,6 +4833,10 @@ ${q}`;
                         water_intake_ml: state.lifestyle_profile?.water_intake_ml || null
                     },
                     goal: primaryGoal,
+                    goal_date: state.health_plan?.goal_date
+                        || state.user_goals?.find(g => g.target_date)?.target_date
+                        || null,
+                    current_date: getAuraISTDate_19G(),
                     goals_count: Array.isArray(state.user_goals) ? state.user_goals.length : 0,
                     current_plan: {
                         workout: state.ai_workout || null,
@@ -4729,7 +4859,41 @@ ${q}`;
         async function requestAuraAIDecision_19B() {
             const context = buildAuraAIContext_19A();
             return await auraAI_18A({
-                task: `You are AURA, an intelligent wellness planning assistant. Return ONLY valid JSON structured decision without formatting text. Use only the supplied wellness context. Never request, infer, reveal or reproduce identity, contact, authentication, account or other sensitive personal information. For hydration, treat lifestyle.water_intake_ml as the user's baseline water consumption, then adjust the daily target using the user's body metrics, activity level, sleep context and current wellness needs. Always return a concrete water.target_ml. Do not simply copy the baseline unless the context supports it.`,
+                task: `You are AURA, an intelligent wellness planning assistant. Return ONLY one valid JSON object. Use only the supplied wellness context. Never request, infer, reveal or reproduce identity, contact, authentication, account or other sensitive personal information.
+
+REQUIRED EXACT STRUCTURE:
+{
+  "workout": {
+    "title": "string",
+    "duration_minutes": number,
+    "focus": "string",
+    "exercises": [
+      {
+        "name": "string",
+        "description": "string",
+        "duration_minutes": number,
+        "sets": number,
+        "reps": number,
+        "rest_seconds": number
+      }
+    ]
+  },
+  "diet": {
+    "daily_calories": number,
+    "protein_g": number,
+    "meals": [
+      { "meal": "Breakfast", "foods": ["string"] },
+      { "meal": "Mid-Morning", "foods": ["string"] },
+      { "meal": "Lunch", "foods": ["string"] },
+      { "meal": "Evening Snack", "foods": ["string"] },
+      { "meal": "Dinner", "foods": ["string"] }
+    ]
+  },
+  "water": { "target_ml": number, "reason": "string" },
+  "sleep": { "target_hours": number, "bedtime": "string", "wake_time": "string" }
+}
+
+Rules: generate a complete personalized workout for TODAY with multiple exercises, not merely a workout focus or recommendation. Every exercise MUST include name, description, duration_minutes, sets, reps, and rest_seconds. Generate all five meals with actual foods; do not return only a nutrition focus/recommendation. For hydration, start from lifestyle.water_intake_ml and intelligently adjust for body metrics, activity and recovery, returning a concrete numeric target_ml. For sleep, start from lifestyle.sleep_hours and return target_hours plus practical bedtime and wake_time. No markdown, no explanation outside JSON.`,
                 context: context
             });
         }
@@ -4753,9 +4917,24 @@ ${q}`;
         function validateAuraDecision_19D(d) {
             const errors = [];
             if (!d?.workout) errors.push("Missing workout");
+            if (!d?.workout?.title) errors.push("Missing workout title");
+            if (!Number.isFinite(Number(d?.workout?.duration_minutes))) errors.push("Missing workout duration");
+            if (!Array.isArray(d?.workout?.exercises) || d.workout.exercises.length < 4) errors.push("Workout needs at least 4 exercises");
+            for (const [i, exercise] of (d?.workout?.exercises || []).entries()) {
+                if (!exercise?.name) errors.push(`Missing exercise ${i + 1} name`);
+                if (!Number.isFinite(Number(exercise?.duration_minutes))) errors.push(`Missing exercise ${i + 1} duration`);
+                if (!Number.isFinite(Number(exercise?.sets))) errors.push(`Missing exercise ${i + 1} sets`);
+                if (!Number.isFinite(Number(exercise?.reps))) errors.push(`Missing exercise ${i + 1} reps`);
+                if (!Number.isFinite(Number(exercise?.rest_seconds))) errors.push(`Missing exercise ${i + 1} rest`);
+            }
             if (!d?.diet) errors.push("Missing diet");
+            if (!Number.isFinite(Number(d?.diet?.daily_calories))) errors.push("Missing diet calories");
+            if (!Number.isFinite(Number(d?.diet?.protein_g))) errors.push("Missing diet protein");
+            if (!Array.isArray(d?.diet?.meals) || d.diet.meals.length < 5) errors.push("Diet needs 5 meals");
             if (!d?.water) errors.push("Missing water");
+            if (!Number.isFinite(Number(d?.water?.target_ml))) errors.push("Missing water target");
             if (!d?.sleep) errors.push("Missing sleep");
+            if (!Number.isFinite(Number(d?.sleep?.target_hours))) errors.push("Missing sleep target");
 
             const valid = errors.length === 0;
             return { valid, errors, decision: valid ? d : null };
@@ -4926,9 +5105,30 @@ return await calculateAuraHydrationTargetFromBaseline();
         async function findTodayAuraAIPlan_19G() {
             const userId = dashboardState?.user?.id;
             const today = getAuraISTDate_19G();
-            const { data, error } = await db.from("aura_recommendations").select("*").eq("user_id", userId).eq("recommendation_type", "daily_ai_plan").gte("created_at", `${today}T00:00:00+05:30`).lt("created_at", `${today}T23:59:59.999+05:30`).order("created_at", { ascending: false }).limit(1).maybeSingle();
+            const currentGoalDate = dashboardState.health_plan?.goal_date
+                || dashboardState.user_goals?.find(g => g.target_date)?.target_date
+                || null;
+
+            const { data: rows, error } = await db
+                .from("aura_recommendations")
+                .select("*")
+                .eq("user_id", userId)
+                .eq("recommendation_type", "daily_ai_plan")
+                .gte("created_at", `${today}T00:00:00+05:30`)
+                .lt("created_at", `${today}T23:59:59.999+05:30`)
+                .order("created_at", { ascending: false })
+                .limit(10);
+
             if (error) throw error;
-            return data || null;
+
+            // A same-day recommendation from before a goal-date/profile change is stale.
+            // New plans carry the goal date in input_snapshot so they can be validated.
+            for (const row of rows || []) {
+                const rowGoalDate = row?.input_snapshot?.wellness?.goal_date || null;
+                if (String(rowGoalDate || '') === String(currentGoalDate || '')) return row;
+            }
+
+            return null;
         }
 
         function normalizeAuraDecision_19G(raw) {
@@ -4982,9 +5182,11 @@ return await calculateAuraHydrationTargetFromBaseline();
                 const output=normalizeAuraDecision_19G(existingPlan.output_snapshot||{});
                 if(validateAuraDecision_19D(output).valid){
                     dashboardState.aura_ai_plan={id:existingPlan.id,model_version:existingPlan.model_version,created_at:existingPlan.created_at,workout:output.workout||null,diet:output.diet||null,water:output.water||null,sleep:output.sleep||null};
+                    try { await applyAuraAIDecision_19F(output, getAuraISTDate_19G()); }
+                    catch(e) { console.warn('AURA AI apply existing plan:', e); }
                     return dashboardState.aura_ai_plan;
                 }
-                console.warn('AURA 19G: Existing today plan is incomplete. Regenerating/falling back.');
+                console.warn('AURA 19G: Existing today plan is incomplete/stale. Regenerating.');
             }
 
             const context=buildAuraAIContext_19A();
@@ -5007,9 +5209,34 @@ return await calculateAuraHydrationTargetFromBaseline();
                 return fallback;
             }
 
-            const saved=await saveAuraDecision_19E(decision,context);
+            // Saving is persistence only. Never discard a valid AI decision because
+            // the recommendation-log write failed.
+            let saved=null;
+            try{
+                saved=await saveAuraDecision_19E(decision,context);
+            }catch(saveError){
+                console.warn('AURA 19G: recommendation persistence failed; keeping AI decision in memory.',saveError);
+            }
+
             const mapped=mapAuraAIDecision_19F(decision);
-            dashboardState.aura_ai_plan={id:saved.id,model_version:saved.model_version,created_at:saved.created_at,workout:mapped.workout||null,diet:mapped.diet||null,water:mapped.water||null,sleep:mapped.sleep||null};
+
+            // Persist the actual AI workout/nutrition into today's plan rows so
+            // refreshes show the same generated plan instead of a safe template.
+            try{
+                await applyAuraAIDecision_19F(decision,getAuraISTDate_19G());
+            }catch(applyError){
+                console.warn("AURA 19G: could not persist today's AI plan rows.",applyError);
+            }
+
+            dashboardState.aura_ai_plan={
+                id:saved?.id||`memory-${getAuraISTDate_19G()}`,
+                model_version:saved?.model_version||'aura-gemini-v1',
+                created_at:saved?.created_at||new Date().toISOString(),
+                workout:mapped.workout||null,
+                diet:mapped.diet||null,
+                water:mapped.water||null,
+                sleep:mapped.sleep||null
+            };
             return dashboardState.aura_ai_plan;
         }
 

@@ -2816,19 +2816,50 @@ body {
     // 1. SUPABASE CLIENT & STATE
     // --------------------------------------------------
     const db = window.supabaseClient;
-    (async () => {
+    let wizardAuthSession = null;
+    let wizardSessionPromise = null;
 
-      const {
-        data: { session }
-      } = await db.auth.getSession();
+    async function ensureWizardSession(forceRefresh = false) {
+      if (!db) throw new Error('Supabase client not found.');
 
-      if (!session) {
+      if (wizardSessionPromise && !forceRefresh) return wizardSessionPromise;
 
-        window.location.replace("login.html");
+      wizardSessionPromise = (async () => {
+        const { data: { session } = {}, error } = await db.auth.getSession();
+        if (error) throw error;
 
+        if (!session?.user?.id) {
+          window.location.replace('login.html');
+          throw new Error('Auth session missing. Please sign in again.');
+        }
+
+        const expiresAt = Number(session.expires_at || 0) * 1000;
+        const needsRefresh = forceRefresh || (expiresAt && expiresAt < Date.now() + 5 * 60 * 1000);
+
+        if (!needsRefresh) {
+          wizardAuthSession = session;
+          return session;
+        }
+
+        const refreshed = await db.auth.refreshSession();
+        if (refreshed.error) throw refreshed.error;
+        const refreshedSession = refreshed.data?.session || null;
+
+        if (!refreshedSession?.user?.id) {
+          window.location.replace('login.html');
+          throw new Error('Auth session could not be refreshed. Please sign in again.');
+        }
+
+        wizardAuthSession = refreshedSession;
+        return refreshedSession;
+      })();
+
+      try {
+        return await wizardSessionPromise;
+      } finally {
+        wizardSessionPromise = null;
       }
-
-    })();
+    }
     if (!db) {
       console.error("Supabase client not found.");
     }
@@ -2850,11 +2881,69 @@ body {
         water_confirmed: false
       },
       user_goals: { goals: ['Lose Weight'], primary_goal: 'Lose Weight', target_date: '' },
+      _meta: { loaded_goal_date: '' },
       user_preferences: { diet: 'Vegetarian', intolerances: [], custom_intolerances: [] },
       user_conditions: { conditions: [], custom_conditions: [] },
       user_medications: [],
       user_units: { height: 'cm', weight: 'kg', water: 'ml' }
     };
+
+    // --------------------------------------------------
+    // 1A. GOAL DATE LIFECYCLE HELPERS
+    // --------------------------------------------------
+    function getTodayISO() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function configureGoalDateInput() {
+      const input = document.getElementById('targetDatePicker');
+      if (!input) return;
+
+      const today = getTodayISO();
+      input.min = today;
+
+      // Existing expired goals may still be shown so the user can see what
+      // has been reached, but they cannot be saved again.
+      if (wizardState.user_goals.target_date) {
+        input.value = wizardState.user_goals.target_date;
+      }
+    }
+
+    async function syncActivePlansToNewGoalDate(userId, newGoalDate, previousGoalDate) {
+      if (!userId || !newGoalDate) return;
+      if (String(newGoalDate) === String(previousGoalDate || '')) return;
+
+      console.log('AURA GOAL UPDATE: syncing active plan end dates', {
+        previousGoalDate,
+        newGoalDate
+      });
+
+      const updates = [
+        ['health_plans', { goal_date: newGoalDate }],
+        ['workout_plans', { goal_date: newGoalDate }],
+        ['diet_plans', { goal_date: newGoalDate }]
+      ];
+
+      for (const [table, payload] of updates) {
+        const { error } = await db
+          .from(table)
+          .update(payload)
+          .eq('user_id', userId)
+          .eq('status', 'active');
+
+        if (error) {
+          console.error(`AURA GOAL UPDATE: ${table} failed`, error);
+          throw error;
+        }
+      }
+
+      console.log('AURA GOAL UPDATE: active plans synced to', newGoalDate);
+      showToast('New goal date saved. AURA will extend your wellness plan.', 'success');
+    }
 
     // --------------------------------------------------
     // 2. INITIALIZATION & DATA RESUME
@@ -2867,8 +2956,10 @@ body {
       setupTagInputs();
       setupKeyboardNav();
 
-      // Load user profile from Supabase if logged in
+      // Load user profile from Supabase using the single session bootstrap.
+      await ensureWizardSession();
       await loadUserDataFromSupabase();
+      configureGoalDateInput();
 
       if (wizardState.user_medications.length === 0) {
         addMedicationRow(); // Add empty row if none loaded
@@ -2886,19 +2977,8 @@ body {
 
 
       try {
-        const {
-          data: { session }
-        } = await db.auth.getSession();
-
+        const session = await ensureWizardSession();
         console.log("Wizard Session:", session);
-
-        if (!session) {
-
-          window.location.replace("login.html");
-
-          return;
-
-        }
         const user = session.user;
 
         const userId = user.id;
@@ -3052,6 +3132,7 @@ body {
           wizardState.user_goals.target_date =
             goalsData.find(g => g.target_date)?.target_date ||
             "";
+          wizardState._meta.loaded_goal_date = wizardState.user_goals.target_date || '';
 
           selectCardsByValues(
             "#goalsGrid",
@@ -3573,6 +3654,22 @@ body {
         wizardState.body_metrics.height_cm = calculatedCm;
         wizardState.body_metrics.weight_kg = calculatedKg;
       }
+
+      if (currentStep === 4) {
+        const targetDate = document.getElementById('targetDatePicker')?.value || '';
+        const today = getTodayISO();
+
+        if (!targetDate) {
+          showToast('Please choose a goal date.', 'error');
+          return false;
+        }
+
+        if (targetDate < today) {
+          showToast('Goal date cannot be before today.', 'error');
+          return false;
+        }
+      }
+
       return true;
     }
 
@@ -3585,8 +3682,8 @@ body {
       if (!db) return;
 
       try {
-        const { data: { user } } = await db.auth.getUser();
-        if (!user) return;
+        const session = await ensureWizardSession();
+        const user = session.user;
         const userId = user.id;
 
         if (step === 2) {
@@ -3863,12 +3960,23 @@ body {
           const primaryGoal =
             document.getElementById("primaryGoalSelect").value;
 
-          const targetDate =
-            document.getElementById("targetDatePicker").value;
+          const targetDateInput = document.getElementById("targetDatePicker");
+          const targetDate = targetDateInput?.value || '';
+          const today = getTodayISO();
+          const previousGoalDate = wizardState._meta.loaded_goal_date || '';
+
+          if (!targetDate) {
+            throw new Error('Please choose a goal date.');
+          }
+
+          if (targetDate < today) {
+            throw new Error('Goal date cannot be before today.');
+          }
 
           console.log("SELECTED GOALS:", selectedGoals);
           console.log("PRIMARY GOAL:", primaryGoal);
           console.log("TARGET DATE:", targetDate);
+          console.log("PREVIOUS GOAL DATE:", previousGoalDate);
 
           const { error: deleteError } = await db
             .from("user_goals")
@@ -3881,7 +3989,7 @@ body {
             user_id: userId,
             goal_name: goal,
             is_primary: goal === primaryGoal,
-            target_date: targetDate || null
+            target_date: targetDate
           }));
 
           console.log("GOAL ROWS:", goalRows);
@@ -3897,6 +4005,24 @@ body {
 
             if (goalError) throw goalError;
           }
+
+          // Keep the wizard state authoritative for the rest of this session.
+          wizardState.user_goals = {
+            goals: selectedGoals,
+            primary_goal: primaryGoal,
+            target_date: targetDate
+          };
+
+          // When Profile/Wizard is used to set a new goal after completion,
+          // extend all active plan containers so Dashboard can immediately
+          // generate the missing workout and nutrition dates and refresh the
+          // daily AI plan for the new goal period.
+          await syncActivePlansToNewGoalDate(
+            userId,
+            targetDate,
+            previousGoalDate
+          );
+          wizardState._meta.loaded_goal_date = targetDate;
 
         } else if (step === 5) {
           const rows = [];
@@ -4271,15 +4397,14 @@ body {
     async function finishOnboarding() {
       if (db) {
         try {
-          const { data: { user } } = await db.auth.getUser();
-          if (user) {
-            await db
-              .from('profiles')
-              .update({
-                onboarding_complete: true
-              })
-              .eq('id', user.id);
-          }
+          const session = await ensureWizardSession();
+          const user = session.user;
+          await db
+            .from('profiles')
+            .update({
+              onboarding_complete: true
+            })
+            .eq('id', user.id);
         } catch (e) {
           console.warn("Profile onboarding status update note:", e.message);
         }
@@ -4354,8 +4479,21 @@ body {
 
       const targetDatePicker = document.getElementById('targetDatePicker');
       if (targetDatePicker) {
+        configureGoalDateInput();
         targetDatePicker.addEventListener('change', () => {
-          wizardState.user_goals.target_date = targetDatePicker.value || '';
+          const value = targetDatePicker.value || '';
+          const today = getTodayISO();
+          targetDatePicker.setCustomValidity('');
+
+          if (value && value < today) {
+            targetDatePicker.setCustomValidity('Choose today or a future date.');
+            showToast('Goal date cannot be before today.', 'error');
+            targetDatePicker.value = '';
+            wizardState.user_goals.target_date = '';
+            return;
+          }
+
+          wizardState.user_goals.target_date = value;
         });
       }
 
