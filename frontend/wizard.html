@@ -1,0 +1,4833 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aura — Personalize Your AI Wellness Companion</title>
+
+  <!-- Typography & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Supabase JS v2 & Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="config.js"></script>
+
+  <script src="supabase.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. CSS VARIABLES & CORE RESET
+       ========================================================================== */
+    :root {
+      --bg-dark: #08101E;
+      --accent: #7C5CFF;
+      --accent-glow: rgba(124, 92, 255, 0.4);
+      --secondary: #00C2FF;
+      --secondary-glow: rgba(0, 194, 255, 0.3);
+      --success: #00E676;
+      --danger: #FF5B5B;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-card: rgba(18, 28, 48, 0.55);
+      --glass-border: rgba(255, 255, 255, 0.12);
+      --glass-border-focus: rgba(124, 92, 255, 0.6);
+      --blur: 28px;
+      --radius-lg: 28px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --text-primary: #FFFFFF;
+      --text-secondary: #94A3B8;
+      --text-muted: #64748B;
+      --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body,
+    html {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ==========================================================================
+       2. ANIMATED CANVAS BACKGROUND & GLASS SYSTEM
+       ========================================================================== */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-viewport {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 1.5rem;
+    }
+
+    /* ==========================================================================
+       3. TOP PROGRESS HEADER & NAVIGATION
+       ========================================================================== */
+    .top-header {
+      width: 100%;
+      max-width: 760px;
+      margin-bottom: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #FFF 0%, var(--secondary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-ring {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-top-color: var(--accent);
+      border-right-color: var(--secondary);
+      animation: spin 6s linear infinite;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .step-indicator {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+    }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 11.11%;
+      background: linear-gradient(90deg, var(--accent) 0%, var(--secondary) 100%);
+      border-radius: 10px;
+      box-shadow: 0 0 12px var(--accent-glow);
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       4. WIZARD MAIN CARD & STEP CONTAINERS
+       ========================================================================== */
+    .wizard-card {
+      width: 100%;
+      max-width: 760px;
+      background: var(--glass-card);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(var(--blur));
+      -webkit-backdrop-filter: blur(var(--blur));
+      border-radius: var(--radius-lg);
+      padding: 3rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.02);
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .step-view {
+      display: none;
+      flex-direction: column;
+      gap: 1.75rem;
+      animation: slideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .step-view.active {
+      display: flex;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .step-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .step-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .step-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       5. FORM CONTROLS & INTERACTIVE CARDS
+       ========================================================================== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      position: relative;
+    }
+
+    .form-group.full {
+      grid-column: span 2;
+    }
+
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      background: rgba(8, 16, 30, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1.1rem;
+      color: #FFF;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: var(--accent);
+      background: rgba(12, 22, 40, 0.85);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .dual-input-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .dual-input-row .input-wrap {
+      flex: 1;
+    }
+
+    .unit-toggle-group {
+      display: flex;
+      background: rgba(8, 16, 30, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .unit-btn {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .unit-btn.active {
+      background: var(--accent);
+      color: #FFF;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    /* Option Selection Cards (Radio/Checkbox) */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .selectable-card {
+      background: rgba(8, 16, 30, 0.45);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .selectable-card:hover {
+      border-color: rgba(124, 92, 255, 0.4);
+      transform: translateY(-3px);
+      background: rgba(12, 22, 42, 0.65);
+    }
+
+    .selectable-card.selected {
+      border-color: var(--accent);
+      background: rgba(124, 92, 255, 0.12);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--secondary);
+    }
+
+    .selectable-card.selected .card-icon {
+      background: var(--accent);
+      color: #FFF;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .card-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Range Sliders */
+    .range-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .range-val-badge {
+      align-self: flex-end;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Interactive Water Glasses */
+    .water-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .water-glass {
+      height: 70px;
+      border: 2px solid var(--glass-border);
+      border-radius: 8px 8px 16px 16px;
+      background: rgba(255, 255, 255, 0.02);
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .water-glass-fill {
+      width: 100%;
+      height: 0%;
+      background: linear-gradient(180deg, var(--secondary) 0%, rgba(0, 194, 255, 0.6) 100%);
+      transition: height 0.3s ease;
+    }
+
+    .water-glass.filled {
+      border-color: var(--secondary);
+      box-shadow: 0 0 12px var(--secondary-glow);
+    }
+
+    .water-glass.filled .water-glass-fill {
+      height: 100%;
+    }
+
+    /* Repeatable Dynamic List Item */
+    .repeater-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .repeater-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 1.2fr auto;
+      gap: 0.75rem;
+      align-items: center;
+      background: rgba(8, 16, 30, 0.4);
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-icon-danger {
+      background: rgba(255, 91, 91, 0.15);
+      border: 1px solid rgba(255, 91, 91, 0.3);
+      color: var(--danger);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-icon-danger:hover {
+      background: var(--danger);
+      color: #FFF;
+    }
+
+    /* Tag Input Container */
+    .tag-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.6rem;
+      background: rgba(8, 16, 30, 0.6);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      min-height: 48px;
+    }
+
+    .tag-chip {
+      background: rgba(124, 92, 255, 0.2);
+      border: 1px solid var(--accent);
+      color: #FFF;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.3rem 0.6rem;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .tag-chip-remove {
+      cursor: pointer;
+      opacity: 0.7;
+    }
+
+    .tag-chip-remove:hover {
+      opacity: 1;
+    }
+
+    .tag-input {
+      border: none;
+      background: transparent;
+      color: #FFF;
+      outline: none;
+      font-size: 0.85rem;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    /* ==========================================================================
+       6. STEP 9: AI SUMMARY DASHBOARD CARDS
+       ========================================================================== */
+    .summary-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .summary-card {
+      background: rgba(8, 16, 30, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      position: relative;
+    }
+
+    .summary-card-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .summary-card-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #FFF;
+    }
+
+    .summary-card-val span {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      background: rgba(0, 194, 255, 0.1);
+      border: 1px solid var(--secondary);
+      border-radius: 20px;
+      color: var(--secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       7. BUTTONS & NAVIGATION FOOTER
+       ========================================================================== */
+    .wizard-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .confirm-water-btn {
+      width: auto;
+      min-width: 240px;
+      height: 48px;
+      margin: 18px auto 0;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+
+      padding: 0 22px;
+
+      border: 1px solid rgba(0, 212, 255, 0.35);
+      border-radius: 12px;
+
+      background: rgba(0, 212, 255, 0.08);
+      color: #00c8ff;
+
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+
+      cursor: pointer;
+
+      transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+    }
+
+    .confirm-water-btn:hover {
+      background: rgba(0, 212, 255, 0.14);
+      border-color: rgba(0, 212, 255, 0.65);
+
+      box-shadow:
+        0 0 18px rgba(0, 212, 255, 0.15);
+
+      transform: translateY(-1px);
+    }
+
+    .confirm-water-btn:active {
+      transform: translateY(0);
+    }
+
+    .confirm-water-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2.2;
+    }
+
+    .confirm-water-btn.confirmed {
+      background: rgba(0, 212, 255, 0.12);
+      border-color: rgba(0, 212, 255, 0.55);
+      color: #00d4ff;
+
+      box-shadow:
+        0 0 16px rgba(0, 212, 255, 0.10);
+    }
+
+    .confirm-water-btn i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .confirm-water-btn.confirmed {
+      opacity: 0.9;
+    }
+
+    .confirm-water-btn.confirmed span {
+      font-size: inherit;
+    }
+
+    .btn {
+      padding: 0.85rem 1.75rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFF;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #5B36FF 100%);
+      color: #FFF;
+      box-shadow: 0 8px 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px var(--accent-glow);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ==========================================================================
+       8. TOAST NOTIFICATION SYSTEM
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .glass-toast {
+      background: rgba(18, 28, 48, 0.85);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: #FFF;
+      font-size: 0.88rem;
+      font-weight: 500;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .glass-toast.error {
+      border-color: rgba(255, 91, 91, 0.4);
+    }
+
+    .glass-toast.error .toast-icon {
+      color: var(--danger);
+    }
+
+    .glass-toast.success {
+      border-color: rgba(0, 230, 118, 0.4);
+    }
+
+    .glass-toast.success .toast-icon {
+      color: var(--success);
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* ==========================================================================
+       9. SUCCESS REDIRECT OVERLAY
+       ========================================================================== */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 16, 30, 0.95);
+      backdrop-filter: blur(30px);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+    }
+
+    .success-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .success-svg-check {
+      width: 90px;
+      height: 90px;
+    }
+
+    .success-svg-check circle {
+      stroke-dasharray: 166;
+      stroke-dashoffset: 166;
+      stroke-width: 2;
+      stroke: var(--success);
+      fill: none;
+      transition: stroke-dashoffset 0.6s ease 0.2s;
+    }
+
+    .success-svg-check path {
+      stroke-dasharray: 48;
+      stroke-dashoffset: 48;
+      stroke-width: 3;
+      stroke: var(--success);
+      fill: none;
+      transition: stroke-dashoffset 0.4s ease 0.7s;
+    }
+
+    .success-overlay.active .success-svg-check circle,
+    .success-overlay.active .success-svg-check path {
+      stroke-dashoffset: 0;
+    }
+
+    .countdown-num {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--secondary);
+    }
+
+    /* ==========================================================================
+       10. RESPONSIVE BREAKPOINTS
+       ========================================================================== */
+    @media (max-width: 768px) {
+      .app-viewport {
+        padding: 1rem 0.75rem;
+      }
+
+      .wizard-card {
+        padding: 1.75rem 1.25rem;
+        min-height: auto;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group.full {
+        grid-column: span 1;
+      }
+
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .summary-metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .water-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+
+      .repeater-row {
+        grid-template-columns: 1fr;
+      }
+
+      .step-title {
+        font-size: 1.5rem;
+      }
+    }
+  
+/* ============================================================
+   AURA WIZARD — FINAL UNIFORM SINGLE-HERO VIEW
+   Visual/layout only; existing form markup + Supabase logic retained.
+   ============================================================ */
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+.app-viewport {
+  width: 100% !important;
+  height: 100svh !important;
+  min-height: 100svh !important;
+  max-height: 100svh !important;
+  overflow: hidden !important;
+  padding: clamp(.6rem, 1.4vh, 1.15rem) clamp(.6rem, 2vw, 1.5rem) !important;
+  gap: clamp(.45rem, 1vh, .8rem) !important;
+  justify-content: flex-start !important;
+}
+
+.top-header {
+  width: min(100%, 900px) !important;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  flex: 0 0 auto !important;
+  gap: .55rem !important;
+}
+
+.header-nav {
+  min-height: 28px !important;
+}
+
+.brand-mark {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .55rem !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 1.15rem !important;
+  letter-spacing: .14em !important;
+  line-height: 1 !important;
+  text-transform: uppercase !important;
+}
+
+.brand-mark:hover,
+.brand-mark:focus,
+.brand-mark:active {
+  color: #fff !important;
+  text-decoration: none !important;
+}
+
+.brand-word {
+  color: #fff !important;
+  font-weight: 800 !important;
+}
+
+.brand-ring {
+  width: 20px !important;
+  height: 20px !important;
+  flex: 0 0 20px !important;
+  border-radius: 50% !important;
+  border: 2px solid transparent !important;
+  border-top-color: #a855f7 !important;
+  border-right-color: #a855f7 !important;
+  animation: spin 6s linear infinite !important;
+  box-shadow: 0 0 12px rgba(168,85,247,.62) !important;
+}
+
+.progress-bar-track {
+  height: 5px !important;
+}
+
+/* One consistent hero frame for every step. */
+.wizard-card {
+  width: min(100%, 900px) !important;
+  max-width: 900px !important;
+  height: calc(100svh - 74px) !important;
+  min-height: 0 !important;
+  max-height: calc(100svh - 74px) !important;
+  padding: clamp(1.05rem, 2vw, 2.15rem) !important;
+  border-radius: clamp(18px, 2.4vw, 28px) !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+}
+
+#wizardForm {
+  height: 100% !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.step-view,
+.step-view.active {
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  gap: clamp(.6rem, 1.4vh, 1.1rem) !important;
+}
+
+.step-title-group {
+  flex: 0 0 auto !important;
+  gap: .3rem !important;
+}
+
+.step-title {
+  font-size: clamp(1.45rem, 3vw, 2rem) !important;
+  line-height: 1.08 !important;
+}
+
+.step-subtitle {
+  font-size: clamp(.78rem, 1.2vw, .92rem) !important;
+  line-height: 1.35 !important;
+}
+
+.form-grid,
+.cards-grid,
+.summary-metrics-grid {
+  min-height: 0 !important;
+}
+
+.form-grid {
+  gap: clamp(.55rem, 1vw, .9rem) !important;
+}
+
+.form-group {
+  gap: .32rem !important;
+}
+
+.form-label {
+  font-size: .76rem !important;
+}
+
+.form-input,
+.form-select {
+  padding: .72rem .85rem !important;
+  min-height: 42px !important;
+  font-size: .84rem !important;
+}
+
+.cards-grid {
+  gap: .55rem !important;
+}
+
+.selectable-card {
+  min-height: 68px !important;
+  padding: .75rem .55rem !important;
+  gap: .45rem !important;
+  border-radius: 13px !important;
+}
+
+.card-icon {
+  width: 34px !important;
+  height: 34px !important;
+}
+
+.card-title {
+  font-size: .82rem !important;
+  line-height: 1.15 !important;
+}
+
+.card-subtitle {
+  font-size: .68rem !important;
+  line-height: 1.15 !important;
+}
+
+.range-wrap {
+  gap: .5rem !important;
+}
+
+.range-input {
+  height: 7px !important;
+}
+
+.water-grid {
+  gap: .45rem !important;
+  margin-top: .25rem !important;
+}
+
+.water-glass {
+  height: 54px !important;
+}
+
+.repeater-list {
+  gap: .45rem !important;
+}
+
+.repeater-row {
+  padding: .55rem !important;
+}
+
+.summary-metrics-grid {
+  gap: .65rem !important;
+}
+
+.summary-card {
+  padding: .8rem !important;
+  min-height: 0 !important;
+}
+
+.summary-card-val {
+  font-size: 1.35rem !important;
+}
+
+.wizard-footer {
+  flex: 0 0 auto !important;
+  margin-top: .75rem !important;
+  padding-top: .75rem !important;
+  gap: .55rem !important;
+}
+
+.btn {
+  padding: .66rem 1rem !important;
+  min-height: 42px !important;
+  font-size: .82rem !important;
+}
+
+.btn-secondary {
+  min-width: 88px !important;
+}
+
+.btn-primary {
+  min-width: 150px !important;
+}
+
+.confirm-water-btn {
+  min-width: 190px !important;
+  height: 42px !important;
+  margin-top: 8px !important;
+  font-size: 12px !important;
+}
+
+/* Mobile-first compact app UI */
+@media (max-width: 768px) {
+  .app-viewport {
+    padding: .4rem .5rem .55rem !important;
+    gap: .38rem !important;
+  }
+
+  .top-header {
+    gap: .35rem !important;
+  }
+
+  .header-nav {
+    min-height: 24px !important;
+  }
+
+  .brand-mark {
+    font-size: .95rem !important;
+    letter-spacing: .13em !important;
+    gap: .42rem !important;
+  }
+
+  .brand-ring {
+    width: 17px !important;
+    height: 17px !important;
+    flex-basis: 17px !important;
+  }
+
+  .step-indicator {
+    font-size: .68rem !important;
+  }
+
+  .progress-bar-track {
+    height: 4px !important;
+  }
+
+  .wizard-card {
+    height: calc(100svh - 57px) !important;
+    max-height: calc(100svh - 57px) !important;
+    padding: .78rem .72rem !important;
+    border-radius: 18px !important;
+  }
+
+  .step-view,
+  .step-view.active {
+    gap: .55rem !important;
+  }
+
+  .step-title-group {
+    text-align: center !important;
+    align-items: center !important;
+    gap: .22rem !important;
+  }
+
+  .step-title {
+    font-size: 1.22rem !important;
+  }
+
+  .step-subtitle {
+    max-width: 94% !important;
+    font-size: .69rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .form-grid {
+    gap: .45rem !important;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .42rem !important;
+  }
+
+  .selectable-card {
+    min-height: 54px !important;
+    padding: .55rem .35rem !important;
+    gap: .28rem !important;
+    border-radius: 11px !important;
+  }
+
+  .card-icon {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .card-title {
+    font-size: .67rem !important;
+  }
+
+  .card-subtitle {
+    font-size: .56rem !important;
+  }
+
+  .form-group {
+    gap: .24rem !important;
+  }
+
+  .form-label {
+    font-size: .62rem !important;
+  }
+
+  .form-input,
+  .form-select {
+    min-height: 36px !important;
+    padding: .5rem .62rem !important;
+    border-radius: 9px !important;
+    font-size: .68rem !important;
+  }
+
+  .unit-toggle-group {
+    padding: 2px !important;
+    gap: 2px !important;
+  }
+
+  .unit-btn {
+    padding: .24rem .42rem !important;
+    font-size: .62rem !important;
+  }
+
+  .range-wrap {
+    gap: .35rem !important;
+  }
+
+  .range-val-badge {
+    font-size: .88rem !important;
+  }
+
+  .range-input {
+    height: 6px !important;
+  }
+
+  .water-grid {
+    gap: .3rem !important;
+  }
+
+  .water-glass {
+    height: 42px !important;
+  }
+
+  .confirm-water-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 36px !important;
+    margin-top: 5px !important;
+    font-size: .67rem !important;
+  }
+
+  .tag-container {
+    min-height: 38px !important;
+    padding: .4rem !important;
+  }
+
+  .tag-chip {
+    font-size: .62rem !important;
+    padding: .22rem .42rem !important;
+  }
+
+  .tag-input {
+    min-width: 90px !important;
+    font-size: .66rem !important;
+  }
+
+  .repeater-row {
+    gap: .35rem !important;
+    padding: .4rem !important;
+  }
+
+  .summary-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr)) !important;
+    gap: .4rem !important;
+  }
+
+  .summary-card {
+    padding: .55rem !important;
+    border-radius: 10px !important;
+    gap: .22rem !important;
+  }
+
+  .summary-card-lbl {
+    font-size: .52rem !important;
+  }
+
+  .summary-card-val {
+    font-size: .98rem !important;
+  }
+
+  .summary-card-val span {
+    font-size: .57rem !important;
+  }
+
+  .wizard-footer {
+    margin-top: .48rem !important;
+    padding-top: .5rem !important;
+    gap: .28rem !important;
+  }
+
+  .btn {
+    min-height: 36px !important;
+    padding: .48rem .66rem !important;
+    font-size: .65rem !important;
+    border-radius: 9px !important;
+  }
+
+  .btn-secondary {
+    min-width: 62px !important;
+  }
+
+  .btn-primary {
+    min-width: 104px !important;
+  }
+
+  .step-view[data-step="1"] {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+  .wizard-card {
+    padding: .58rem .6rem !important;
+  }
+
+  .step-view,
+  .step-view.active {
+    gap: .4rem !important;
+  }
+
+  .step-title {
+    font-size: 1.08rem !important;
+  }
+
+  .step-subtitle {
+    font-size: .62rem !important;
+  }
+
+  .selectable-card {
+    min-height: 47px !important;
+    padding: .42rem .3rem !important;
+  }
+
+  .card-icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .form-input,
+  .form-select {
+    min-height: 33px !important;
+    padding: .43rem .55rem !important;
+  }
+
+  .wizard-footer {
+    margin-top: .3rem !important;
+    padding-top: .35rem !important;
+  }
+}
+
+  
+/* ============================================================
+   FINAL MOBILE-FIRST WIZARD UI
+   Keeps all existing form/save/auth logic untouched.
+   ============================================================ */
+
+.wizard-nav-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .7rem;
+}
+
+.dashboard-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  min-height: 32px;
+  padding: .42rem .7rem;
+  border: 1px solid rgba(168, 85, 247, .35);
+  border-radius: 10px;
+  background: rgba(168, 85, 247, .07);
+  color: #cbd5e1;
+  font: 600 .72rem/1 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.dashboard-exit-btn:hover,
+.dashboard-exit-btn:focus-visible {
+  color: #fff;
+  border-color: rgba(168, 85, 247, .75);
+  box-shadow: 0 0 18px rgba(168, 85, 247, .18);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.dashboard-exit-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.quit-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(2, 5, 14, .72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.quit-dialog-backdrop.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quit-dialog {
+  width: min(100%, 390px);
+  padding: 1.25rem;
+  border: 1px solid rgba(168,85,247,.28);
+  border-radius: 20px;
+  background: rgba(10,16,30,.92);
+  box-shadow:
+    0 26px 70px rgba(0,0,0,.45),
+    0 0 28px rgba(168,85,247,.10);
+  transform: translateY(8px) scale(.98);
+  transition: transform .2s ease;
+}
+
+.quit-dialog-backdrop.active .quit-dialog {
+  transform: translateY(0) scale(1);
+}
+
+.quit-dialog-icon {
+  width: 34px;
+  height: 34px;
+  margin-bottom: .7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #c084fc;
+  background: rgba(168,85,247,.10);
+  border: 1px solid rgba(168,85,247,.24);
+}
+
+.quit-dialog-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.quit-dialog h2 {
+  margin: 0 0 .45rem;
+  font: 800 1.05rem/1.2 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.quit-dialog p {
+  margin: 0;
+  color: #94a3b8;
+  font: 500 .78rem/1.5 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.quit-dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .55rem;
+  margin-top: 1rem;
+}
+
+.wizard-dialog-open {
+  overflow: hidden !important;
+}
+
+/* Desktop: keep the hero centered but use the available viewport more naturally. */
+@media (min-width: 769px) {
+  .app-viewport {
+    height: 100svh !important;
+    min-height: 100svh !important;
+    overflow: hidden !important;
+    padding: .8rem 1.25rem !important;
+  }
+
+  .top-header {
+    margin-bottom: .75rem !important;
+  }
+
+  .wizard-card {
+    height: calc(100svh - 64px) !important;
+    max-height: calc(100svh - 64px) !important;
+    padding: 1.65rem 2rem !important;
+  }
+
+  .step-view {
+    justify-content: center !important;
+    gap: 1rem !important;
+  }
+
+  .wizard-footer {
+    margin-top: .8rem !important;
+    padding-top: .8rem !important;
+  }
+}
+
+/* Mobile: visually centered, app-like, compact, NOT stretched top-to-bottom. */
+@media (max-width: 768px) {
+  .app-viewport {
+    width: 100% !important;
+    height: 100svh !important;
+    min-height: 100svh !important;
+    max-height: 100svh !important;
+    overflow: hidden !important;
+    padding:
+      max(.5rem, env(safe-area-inset-top))
+      .55rem
+      max(.5rem, env(safe-area-inset-bottom)) !important;
+    gap: .32rem !important;
+  }
+
+  .top-header {
+    width: 100% !important;
+    max-width: 390px !important;
+    margin: 0 auto !important;
+    gap: .28rem !important;
+  }
+
+  .header-nav {
+    min-height: 30px !important;
+  }
+
+  .brand-mark {
+    font-size: .92rem !important;
+    gap: .4rem !important;
+  }
+
+  .brand-ring {
+    width: 16px !important;
+    height: 16px !important;
+    flex-basis: 16px !important;
+  }
+
+  .wizard-nav-actions {
+    gap: .45rem !important;
+  }
+
+  .dashboard-exit-btn {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+  }
+
+  .dashboard-exit-btn span {
+    display: none !important;
+  }
+
+  .dashboard-exit-btn svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .step-indicator {
+    font-size: .64rem !important;
+    letter-spacing: .03em !important;
+  }
+
+  .progress-bar-track {
+    height: 4px !important;
+  }
+
+  .wizard-card {
+    width: min(100%, 390px) !important;
+    height: calc(100svh - 54px) !important;
+    max-height: calc(100svh - 54px) !important;
+    padding: .82rem .78rem !important;
+    border-radius: 18px !important;
+    margin: 0 auto !important;
+  }
+
+  #wizardForm {
+    height: 100% !important;
+  }
+
+  .step-view,
+  .step-view.active {
+    flex: 1 1 auto !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: .58rem !important;
+    overflow: hidden !important;
+  }
+
+  .step-title-group {
+    width: 100% !important;
+    text-align: center !important;
+    align-items: center !important;
+    gap: .22rem !important;
+    margin-bottom: .1rem !important;
+  }
+
+  .step-title {
+    font-size: 1.15rem !important;
+    line-height: 1.08 !important;
+  }
+
+  .step-subtitle {
+    max-width: 330px !important;
+    font-size: .68rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .form-grid {
+    gap: .42rem !important;
+  }
+
+  .cards-grid {
+    gap: .4rem !important;
+  }
+
+  .selectable-card {
+    min-height: 52px !important;
+    padding: .5rem .36rem !important;
+    gap: .24rem !important;
+    border-radius: 11px !important;
+  }
+
+  .card-icon {
+    width: 27px !important;
+    height: 27px !important;
+  }
+
+  .card-title {
+    font-size: .66rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .card-subtitle {
+    font-size: .55rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .form-group {
+    gap: .22rem !important;
+  }
+
+  .form-label {
+    font-size: .61rem !important;
+  }
+
+  .form-input,
+  .form-select {
+    min-height: 35px !important;
+    padding: .48rem .58rem !important;
+    font-size: .67rem !important;
+    border-radius: 9px !important;
+  }
+
+  .range-wrap {
+    gap: .35rem !important;
+  }
+
+  .range-val-badge {
+    font-size: .84rem !important;
+  }
+
+  .water-grid {
+    gap: .28rem !important;
+  }
+
+  .water-glass {
+    height: 40px !important;
+  }
+
+  .tag-container {
+    min-height: 36px !important;
+  }
+
+  .summary-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .38rem !important;
+  }
+
+  .summary-card {
+    padding: .5rem !important;
+  }
+
+  .summary-card-lbl {
+    font-size: .5rem !important;
+  }
+
+  .summary-card-val {
+    font-size: .95rem !important;
+  }
+
+  .wizard-footer {
+    margin-top: .35rem !important;
+    padding-top: .45rem !important;
+    gap: .3rem !important;
+  }
+
+  .btn {
+    min-height: 35px !important;
+    padding: .46rem .58rem !important;
+    border-radius: 9px !important;
+    font-size: .63rem !important;
+  }
+
+  .btn-secondary {
+    min-width: 62px !important;
+  }
+
+  .btn-primary {
+    min-width: 102px !important;
+  }
+
+  .quit-dialog {
+    width: min(100%, 340px);
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+  .wizard-card {
+    padding: .62rem .58rem !important;
+  }
+
+  .step-view,
+  .step-view.active {
+    gap: .42rem !important;
+  }
+
+  .step-title {
+    font-size: 1.06rem !important;
+  }
+
+  .step-subtitle {
+    font-size: .61rem !important;
+  }
+
+  .selectable-card {
+    min-height: 46px !important;
+    padding: .42rem .28rem !important;
+  }
+
+  .form-input,
+  .form-select {
+    min-height: 32px !important;
+    padding: .4rem .5rem !important;
+  }
+
+  .wizard-footer {
+    margin-top: .2rem !important;
+    padding-top: .3rem !important;
+  }
+}
+
+
+/* FINAL MOBILE-ONLY BUTTON POSITIONING FIX */
+@media (max-width: 768px) {
+  .wizard-card {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #wizardForm {
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+  }
+
+  .wizard-footer {
+    width: 100% !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: .55rem !important;
+    margin-top: .15rem !important;
+    padding-top: .35rem !important;
+    flex: 0 0 auto !important;
+  }
+
+  .wizard-footer > * {
+    flex: 0 0 auto !important;
+  }
+
+  .wizard-footer .btn {
+    width: auto !important;
+    min-width: 92px !important;
+  }
+
+  .wizard-footer .btn-primary {
+    min-width: 112px !important;
+  }
+
+  /* Keep the step body centered without forcing it to consume the entire card. */
+  .step-view,
+  .step-view.active {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Only the content area gets the available height; footer remains directly below. */
+  #wizardForm {
+    justify-content: center !important;
+    gap: .35rem !important;
+  }
+}
+
+@media (max-width: 768px) and (max-height: 700px) {
+  .wizard-footer {
+    margin-top: .1rem !important;
+    padding-top: .25rem !important;
+    gap: .45rem !important;
+  }
+
+  .wizard-footer .btn {
+    min-width: 86px !important;
+  }
+
+  .wizard-footer .btn-primary {
+    min-width: 104px !important;
+  }
+}
+
+
+/* ============================================================
+   MOBILE APP-STYLE WIZARD — FINAL VISUAL OVERRIDE
+   Keep all existing onboarding logic intact.
+   ============================================================ */
+
+@media (max-width: 768px) {
+  html,
+  body {
+    height: 100%;
+    min-height: 100%;
+    max-height: 100%;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    background: #08101E !important;
+  }
+
+  .app-viewport {
+    position: relative !important;
+    width: 100% !important;
+    height: 100svh !important;
+    min-height: 100svh !important;
+    max-height: 100svh !important;
+    padding:
+      max(10px, env(safe-area-inset-top))
+      12px
+      max(10px, env(safe-area-inset-bottom)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+  }
+
+  /* Floating particle canvas remains visible behind the app shell. */
+  #bgCanvas {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100svh !important;
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+
+  /* Normal app navigation bar. */
+  .top-header {
+    position: relative !important;
+    z-index: 5 !important;
+    width: 100% !important;
+    max-width: 390px !important;
+    margin: 0 auto !important;
+    padding: 0 2px !important;
+    display: block !important;
+  }
+
+  .wizard-top-nav {
+    width: 100% !important;
+    min-height: 34px !important;
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    align-items: center !important;
+    gap: 8px !important;
+  }
+
+  .brand-mark {
+    justify-self: start !important;
+    font-size: .92rem !important;
+    letter-spacing: .13em !important;
+    gap: .38rem !important;
+  }
+
+  .brand-ring {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+  }
+
+  .dashboard-exit-btn {
+    justify-self: center !important;
+    width: auto !important;
+    min-width: 122px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 12px !important;
+    border-radius: 9px !important;
+    gap: 6px !important;
+    font-size: .64rem !important;
+    white-space: nowrap !important;
+  }
+
+  .dashboard-exit-btn span {
+    display: inline !important;
+  }
+
+  .dashboard-exit-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  .step-indicator {
+    justify-self: end !important;
+    font-size: .61rem !important;
+    white-space: nowrap !important;
+  }
+
+  .progress-bar-track {
+    width: 100% !important;
+    height: 3px !important;
+    margin-top: 6px !important;
+  }
+
+  /* SMALL CENTERED VERTICAL CONTENT CARD */
+  .wizard-card {
+    position: relative !important;
+    z-index: 2 !important;
+    width: min(92vw, 360px) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: calc(100svh - 74px) !important;
+    margin: auto !important;
+    padding: 18px 15px !important;
+    border-radius: 20px !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background: rgba(18, 28, 48, .66) !important;
+    border: 1px solid rgba(255,255,255,.12) !important;
+    box-shadow:
+      0 22px 55px rgba(0,0,0,.42),
+      inset 0 0 22px rgba(255,255,255,.018) !important;
+    overflow: hidden !important;
+  }
+
+  #wizardForm {
+    width: 100% !important;
+    max-width: 330px !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+
+  .step-view,
+  .step-view.active {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+    justify-content: center !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+  }
+
+  .step-title-group {
+    text-align: center !important;
+    align-items: center !important;
+    gap: 3px !important;
+  }
+
+  .step-title {
+    font-size: 1.08rem !important;
+    line-height: 1.08 !important;
+  }
+
+  .step-subtitle {
+    max-width: 315px !important;
+    font-size: .62rem !important;
+    line-height: 1.3 !important;
+    text-align: center !important;
+  }
+
+  /* Keep all controls compact and centered. */
+  .form-grid {
+    gap: 7px !important;
+  }
+
+  .form-group {
+    gap: 3px !important;
+  }
+
+  .form-label {
+    font-size: .58rem !important;
+  }
+
+  .form-input,
+  .form-select {
+    min-height: 34px !important;
+    padding: 7px 9px !important;
+    font-size: .66rem !important;
+    border-radius: 8px !important;
+  }
+
+  .cards-grid {
+    width: 100% !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .selectable-card {
+    min-height: 50px !important;
+    padding: 7px 5px !important;
+    gap: 3px !important;
+    border-radius: 10px !important;
+  }
+
+  .card-icon {
+    width: 26px !important;
+    height: 26px !important;
+  }
+
+  .card-title {
+    font-size: .62rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .card-subtitle {
+    font-size: .5rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .range-wrap {
+    gap: 4px !important;
+  }
+
+  .range-input {
+    height: 5px !important;
+  }
+
+  .range-val-badge {
+    font-size: .78rem !important;
+  }
+
+  .water-grid {
+    gap: 4px !important;
+    margin-top: 2px !important;
+  }
+
+  .water-glass {
+    height: 38px !important;
+  }
+
+  .tag-container {
+    min-height: 34px !important;
+    padding: 5px !important;
+  }
+
+  .tag-chip {
+    font-size: .55rem !important;
+    padding: 3px 6px !important;
+  }
+
+  .tag-input {
+    min-width: 70px !important;
+    font-size: .61rem !important;
+  }
+
+  .summary-metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+
+  .summary-card {
+    padding: 7px !important;
+    border-radius: 9px !important;
+    gap: 2px !important;
+  }
+
+  .summary-card-lbl {
+    font-size: .48rem !important;
+  }
+
+  .summary-card-val {
+    font-size: .88rem !important;
+  }
+
+  .summary-card-val span {
+    font-size: .52rem !important;
+  }
+
+  /* Buttons are part of the centered card, not pinned to the viewport bottom. */
+  .wizard-footer {
+    width: 100% !important;
+    margin-top: 4px !important;
+    padding-top: 8px !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px !important;
+    flex: 0 0 auto !important;
+  }
+
+  .wizard-footer .btn {
+    min-height: 34px !important;
+    min-width: 84px !important;
+    padding: 7px 10px !important;
+    border-radius: 8px !important;
+    font-size: .61rem !important;
+  }
+
+  .wizard-footer .btn-primary {
+    min-width: 108px !important;
+  }
+
+  .confirm-water-btn {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    margin: 5px auto 0 !important;
+    font-size: .62rem !important;
+  }
+
+  /* Short screens: shrink the card, never stretch it. */
+  @media (max-height: 700px) {
+    .app-viewport {
+      gap: 7px !important;
+    }
+
+    .wizard-card {
+      width: min(92vw, 350px) !important;
+      padding: 14px 12px !important;
+      max-height: calc(100svh - 62px) !important;
+    }
+
+    .step-view,
+    .step-view.active {
+      gap: 7px !important;
+    }
+
+    .selectable-card {
+      min-height: 44px !important;
+      padding: 6px 4px !important;
+    }
+
+    .form-input,
+    .form-select {
+      min-height: 31px !important;
+      padding: 6px 8px !important;
+    }
+
+    .wizard-footer {
+      margin-top: 2px !important;
+      padding-top: 6px !important;
+    }
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+  <!-- Dynamic Background Canvas -->
+  <canvas id="bgCanvas"></canvas>
+
+  <!-- Glass Toast Host Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Main Viewport -->
+  <div class="app-viewport">
+
+    <!-- Top Header & Progress Bar -->
+    <header class="top-header">
+      <div class="header-nav wizard-top-nav">
+        <a class="brand-mark" href="index.html" aria-label="Go to AURA home">
+          <span class="brand-ring"></span>
+          <span class="brand-word">AURA</span>
+        </a>
+
+        <button type="button" class="dashboard-exit-btn" onclick="requestWizardExit()" aria-label="Back to Dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Back to Dashboard</span>
+        </button>
+
+        <div class="step-indicator" id="stepIndicator">Step 1 / 9</div>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+    </header>
+
+    <!-- Main Wizard Container -->
+    <main class="wizard-card">
+      <form id="wizardForm" onsubmit="return false;">
+
+        <!-- ==========================================================================
+           STEP 1: WELCOME
+           ========================================================================== -->
+        <div class="step-view active" data-step="1">
+          <div style="text-align: center; margin: 1rem 0;">
+            <div class="card-icon"
+              style="width:70px; height:70px; margin: 0 auto; background: rgba(124, 92, 255, 0.12); color: var(--accent);">
+              <i data-lucide="sparkles" style="width:36px; height:36px;"></i>
+            </div>
+          </div>
+          <div class="step-title-group" style="text-align: center;">
+            <h1 class="step-title">Welcome to Aura</h1>
+            <p class="step-subtitle">Let's personalize your AI wellness companion. We'll build your custom health
+              profile and baseline targets.</p>
+          </div>
+          <div style="display:flex; justify-content:center; gap:0.5rem; margin-top: 1rem;">
+            <div class="ai-badge"><i data-lucide="clock" style="width:14px;"></i> Estimated time: Under 2 Minutes</div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 2: BODY METRICS
+           ========================================================================== -->
+        <div class="step-view" data-step="2">
+          <div class="step-title-group">
+            <h1 class="step-title">Body Metrics</h1>
+            <p class="step-subtitle">Your physical baseline helps Aura calculate accurate metabolic equations.</p>
+          </div>
+
+          <div class="form-grid">
+            <!-- Age -->
+            <div class="form-group">
+              <label class="form-label" for="ageInput">Age</label>
+              <input type="number" id="ageInput" class="form-input" placeholder="e.g. 28" min="13" max="120" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="form-group">
+              <label class="form-label" for="genderSelect">Biological Sex</label>
+              <select id="genderSelect" class="form-select" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+
+            <!-- Height -->
+            <div class="form-group">
+              <div class="form-label">
+                <span>Height</span>
+                <div class="unit-toggle-group" style="padding:2px;">
+                  <button type="button" class="unit-btn active" id="btnHeightCm"
+                    onclick="setHeightUnit('cm')">cm</button>
+                  <button type="button" class="unit-btn" id="btnHeightFt" onclick="setHeightUnit('ft')">ft/in</button>
+                </div>
+              </div>
+
+              <!-- CM Input -->
+              <div id="heightCmContainer" class="input-wrap">
+                <input type="number" id="heightCmInput" class="form-input" placeholder="cm" min="100" max="250"
+                  step="0.1">
+              </div>
+
+              <!-- Ft / In Inputs -->
+              <div id="heightFtContainer" class="dual-input-row" style="display: none;">
+                <div class="input-wrap">
+                  <input type="number" id="heightFtInput" class="form-input" placeholder="ft" min="3" max="8" step="1">
+                </div>
+                <div class="input-wrap">
+                  <input type="number" id="heightInInput" class="form-input" placeholder="in" min="0" max="11" step="1">
+                </div>
+              </div>
+            </div>
+
+            <!-- Weight -->
+            <div class="form-group">
+              <div class="form-label">
+                <span>Weight</span>
+                <div class="unit-toggle-group" style="padding:2px;">
+                  <button type="button" class="unit-btn active" id="btnWeightKg"
+                    onclick="setWeightUnit('kg')">kg</button>
+                  <button type="button" class="unit-btn" id="btnWeightLbs" onclick="setWeightUnit('lbs')">lbs</button>
+                </div>
+              </div>
+              <div class="input-wrap">
+                <input type="number" id="weightInput" class="form-input" placeholder="kg" min="20" max="350" step="0.1"
+                  required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 3: LIFESTYLE
+           ========================================================================== -->
+        <div class="step-view" data-step="3">
+          <div class="step-title-group">
+            <h1 class="step-title">Lifestyle</h1>
+            <p class="step-subtitle">Tell us about your daily activity levels and sleep habits.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Activity Level</label>
+            <div class="cards-grid" id="activityCards">
+              <div class="selectable-card selected" data-value="sedentary">
+                <div class="card-icon"><i data-lucide="armchair"></i></div>
+                <div class="card-title">Sedentary</div>
+                <div class="card-subtitle">Desk job, little exercise</div>
+              </div>
+              <div class="selectable-card" data-value="light">
+                <div class="card-icon"><i data-lucide="footprints"></i></div>
+                <div class="card-title">Light</div>
+                <div class="card-subtitle">1–3 days/wk movement</div>
+              </div>
+              <div class="selectable-card" data-value="moderate">
+                <div class="card-icon"><i data-lucide="zap"></i></div>
+                <div class="card-title">Moderate</div>
+                <div class="card-subtitle">3–5 days/wk active workout</div>
+              </div>
+              <div class="selectable-card" data-value="active">
+                <div class="card-icon"><i data-lucide="flame"></i></div>
+                <div class="card-title">Active</div>
+                <div class="card-subtitle">6–7 days/wk strenuous</div>
+              </div>
+              <div class="selectable-card" data-value="athlete">
+                <div class="card-icon"><i data-lucide="trophy"></i></div>
+                <div class="card-title">Athlete</div>
+                <div class="card-subtitle">Intense daily training</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: 1rem;">
+            <div class="form-group full range-wrap">
+              <div class="form-label">
+                <span>Nightly Sleep Duration</span>
+                <span class="range-val-badge" id="sleepValBadge">7.5 hrs</span>
+              </div>
+              <input type="range" id="sleepRange" class="range-input" min="4" max="12" step="0.5" value="7.5">
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label">Sleep Quality</label>
+              <div class="cards-grid" id="sleepQualityCards">
+                <div class="selectable-card" data-value="poor">
+                  <div class="card-title">Poor</div>
+                </div>
+                <div class="selectable-card" data-value="average">
+                  <div class="card-title">Average</div>
+                </div>
+                <div class="selectable-card selected" data-value="good">
+                  <div class="card-title">Good</div>
+                </div>
+                <div class="selectable-card" data-value="excellent">
+                  <div class="card-title">Excellent</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 4: GOALS
+           ========================================================================== -->
+        <div class="step-view" data-step="4">
+          <div class="step-title-group">
+            <h1 class="step-title">Goals</h1>
+            <p class="step-subtitle">Select all goals you want Aura AI to help you achieve.</p>
+          </div>
+
+          <div class="cards-grid" id="goalsGrid">
+            <div class="selectable-card selected" data-value="Lose Weight">
+              <div class="card-icon"><i data-lucide="trending-down"></i></div>
+              <div class="card-title">Lose Weight</div>
+            </div>
+            <div class="selectable-card" data-value="Gain Muscle">
+              <div class="card-icon"><i data-lucide="dumbbell"></i></div>
+              <div class="card-title">Gain Muscle</div>
+            </div>
+            <div class="selectable-card" data-value="Healthy Lifestyle">
+              <div class="card-icon"><i data-lucide="heart"></i></div>
+              <div class="card-title">Healthy Lifestyle</div>
+            </div>
+            <div class="selectable-card" data-value="Improve Fitness">
+              <div class="card-icon"><i data-lucide="activity"></i></div>
+              <div class="card-title">Improve Fitness</div>
+            </div>
+            <div class="selectable-card" data-value="Better Sleep">
+              <div class="card-icon"><i data-lucide="moon"></i></div>
+              <div class="card-title">Better Sleep</div>
+            </div>
+            <div class="selectable-card" data-value="Stress Management">
+              <div class="card-icon"><i data-lucide="smile"></i></div>
+              <div class="card-title">Reduce Stress</div>
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: 1rem;">
+            <div class="form-group">
+              <label class="form-label" for="primaryGoalSelect">Primary Focus Goal</label>
+              <select id="primaryGoalSelect" class="form-select">
+                <option value="Lose Weight">Lose Weight</option>
+                <option value="Gain Muscle">Gain Muscle</option>
+                <option value="Healthy Lifestyle">Healthy Lifestyle</option>
+                <option value="Improve Fitness">Improve Fitness</option>
+                <option value="Better Sleep">Better Sleep</option>
+                <option value="Stress Management">Stress Management</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="targetDatePicker">Target Goal Date</label>
+              <input type="date" id="targetDatePicker" class="form-input">
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 5: FOOD PREFERENCES
+           ========================================================================== -->
+        <div class="step-view" data-step="5">
+          <div class="step-title-group">
+            <h1 class="step-title">Food Preferences</h1>
+            <p class="step-subtitle">Customize your dietary patterns and allergies.</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Diet Pattern</label>
+            <div class="cards-grid" id="dietCards">
+              <div class="selectable-card selected" data-value="Vegetarian">
+                <div class="card-title">Vegetarian</div>
+              </div>
+              <div class="selectable-card" data-value="Non Vegetarian">
+                <div class="card-title">Non Veg</div>
+              </div>
+              <div class="selectable-card" data-value="Vegan">
+                <div class="card-title">Vegan</div>
+              </div>
+              <div class="selectable-card" data-value="Eggetarian">
+                <div class="card-title">Eggetarian</div>
+              </div>
+              <div class="selectable-card" data-value="Jain">
+                <div class="card-title">Jain</div>
+              </div>
+              <div class="selectable-card" data-value="Keto">
+                <div class="card-title">Keto</div>
+              </div>
+              <div class="selectable-card" data-value="Paleo">
+                <div class="card-title">Paleo</div>
+              </div>
+              <div class="selectable-card" data-value="Mediterranean">
+                <div class="card-title">Mediterranean</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label class="form-label">Food Intolerances</label>
+            <div class="cards-grid" id="intoleranceCards">
+              <div class="selectable-card" data-value="Lactose">
+                <div class="card-title">Lactose</div>
+              </div>
+              <div class="selectable-card" data-value="Gluten">
+                <div class="card-title">Gluten</div>
+              </div>
+              <div class="selectable-card" data-value="Peanuts">
+                <div class="card-title">Peanuts</div>
+              </div>
+              <div class="selectable-card" data-value="Tree Nuts">
+                <div class="card-title">Tree Nuts</div>
+              </div>
+              <div class="selectable-card" data-value="Soy">
+                <div class="card-title">Soy</div>
+              </div>
+              <div class="selectable-card" data-value="Eggs">
+                <div class="card-title">Eggs</div>
+              </div>
+              <div class="selectable-card" data-value="Fish">
+                <div class="card-title">Fish</div>
+              </div>
+              <div class="selectable-card" data-value="Shellfish">
+                <div class="card-title">Shellfish</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 0.5rem;">
+            <label class="form-label">Custom Intolerances / Other Allergies</label>
+            <div class="tag-container" id="customIntoleranceContainer">
+              <input type="text" class="tag-input" id="customIntoleranceInput"
+                placeholder="Type intolerance & press Enter...">
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 6: MEDICAL CONDITIONS
+           ========================================================================== -->
+        <div class="step-view" data-step="6">
+          <div class="step-title-group">
+            <h1 class="step-title">Medical Conditions</h1>
+            <p class="step-subtitle">Help Aura AI tailor safe wellness recommendations.</p>
+          </div>
+
+          <div class="cards-grid" id="conditionsGrid">
+            <div class="selectable-card" data-value="Diabetes">
+              <div class="card-title">Diabetes</div>
+            </div>
+            <div class="selectable-card" data-value="Hypertension">
+              <div class="card-title">Hypertension</div>
+            </div>
+            <div class="selectable-card" data-value="Thyroid Disorders">
+              <div class="card-title">Thyroid</div>
+            </div>
+            <div class="selectable-card" data-value="Asthma">
+              <div class="card-title">Asthma</div>
+            </div>
+            <div class="selectable-card" data-value="PCOS">
+              <div class="card-title">PCOS</div>
+            </div>
+            <div class="selectable-card" data-value="Heart Disease">
+              <div class="card-title">Heart Condition</div>
+            </div>
+            <div class="selectable-card" data-value="High Cholesterol">
+              <div class="card-title">High Cholesterol</div>
+            </div>
+            <div class="selectable-card" data-value="Arthritis">
+              <div class="card-title">Arthritis</div>
+            </div>
+            <div class="selectable-card" data-value="Kidney Disease">
+              <div class="card-title">Kidney Disease</div>
+            </div>
+            <div class="selectable-card" data-value="Liver Disease">
+              <div class="card-title">Liver Disease</div>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label class="form-label">Other Medical Conditions</label>
+            <div class="tag-container" id="customConditionContainer">
+              <input type="text" class="tag-input" id="customConditionInput"
+                placeholder="Add custom condition & press Enter...">
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 7: LIFESTYLE HABITS & MEDICATIONS
+           ========================================================================== -->
+        <div class="step-view" data-step="7">
+          <div class="step-title-group">
+            <h1 class="step-title">Lifestyle Habits</h1>
+            <p class="step-subtitle">Substance habits, daily hydration target, and current medications.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="smokingSelect">Smoking</label>
+              <select id="smokingSelect" class="form-select">
+                <option value="Never">Never</option>
+                <option value="Occasionally">Occasionally</option>
+                <option value="Regularly">Regularly</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="alcoholSelect">Alcohol</label>
+              <select id="alcoholSelect" class="form-select">
+                <option value="Never">Never</option>
+                <option value="Socially">Socially</option>
+                <option value="Weekly">Weekly</option>
+                <option value="Frequently">Frequently</option>
+              </select>
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label">
+                <span>Baseline Water Intake</span>
+                <span id="waterGlassBadge" style="color:var(--secondary); font-weight:700;">1000 ml (5 glasses)</span>
+              </label>
+              <div class="water-grid" id="waterGlassGrid">
+                <div class="water-glass filled">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+                <div class="water-glass">
+                  <div class="water-glass-fill"></div>
+                </div>
+              </div>
+              <button type="button" id="confirmWaterBtn" class="confirm-water-btn">
+                <i data-lucide="check-circle"></i>
+                <span>Confirm Water Intake</span>
+              </button>
+            </div>
+
+            <div class="form-group full" style="margin-top: 0.5rem;">
+              <div class="form-label">
+                <span>Current Medications</span>
+                <button type="button" class="btn btn-secondary" style="padding:0.3rem 0.8rem; font-size:0.75rem;"
+                  onclick="addMedicationRow()">+ Add Medication</button>
+              </div>
+              <div class="repeater-list" id="medicationRepeater">
+                <!-- Dynamic rows inserted via JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 8: UNITS PREFERENCES
+           ========================================================================== -->
+        <div class="step-view" data-step="8">
+          <div class="step-title-group">
+            <h1 class="step-title">Unit Preferences</h1>
+            <p class="step-subtitle">Configure system default display units across the dashboard.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Height Unit</label>
+              <div class="unit-toggle-group">
+                <button type="button" class="unit-btn active" id="unitHeightCm"
+                  onclick="setPrefUnit('height', 'cm')">cm</button>
+                <button type="button" class="unit-btn" id="unitHeightFt"
+                  onclick="setPrefUnit('height', 'ft/in')">ft/in</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Weight Unit</label>
+              <div class="unit-toggle-group">
+                <button type="button" class="unit-btn active" id="unitWeightKg"
+                  onclick="setPrefUnit('weight', 'kg')">kg</button>
+                <button type="button" class="unit-btn" id="unitWeightLbs"
+                  onclick="setPrefUnit('weight', 'lbs')">lbs</button>
+              </div>
+            </div>
+
+            <div class="form-group full">
+              <label class="form-label">Water Unit</label>
+              <div class="unit-toggle-group">
+                <button type="button" class="unit-btn active" id="unitWaterMl"
+                  onclick="setPrefUnit('water', 'ml')">ml</button>
+                <button type="button" class="unit-btn" id="unitWaterOz" onclick="setPrefUnit('water', 'oz')">oz</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==========================================================================
+           STEP 9: AI SUMMARY DASHBOARD
+           ========================================================================== -->
+        <div class="step-view" data-step="9">
+          <div class="step-title-group">
+            <h1 class="step-title">Your AI Wellness Baseline</h1>
+            <p class="step-subtitle">Aura has processed your profile and computed your metabolic targets.</p>
+          </div>
+
+          <div class="summary-metrics-grid">
+            <div class="summary-card">
+              <span class="summary-card-lbl">Body Mass Index (BMI)</span>
+              <div class="summary-card-val" id="resBMI">0.0</div>
+              <span class="card-subtitle" id="resBMICat">Calculating...</span>
+            </div>
+
+            <div class="summary-card">
+              <span class="summary-card-lbl">BMR / Calories</span>
+              <div class="summary-card-val" id="resBMR">0 <span>kcal</span></div>
+              <span class="card-subtitle" id="resTDEE">Daily Target: 0 kcal</span>
+            </div>
+
+            <div class="summary-card">
+              <span class="summary-card-lbl">Daily Water Target</span>
+              <div class="summary-card-val" id="resWater">0 <span>ml</span></div>
+              <span class="card-subtitle" id="resWaterSub">Hydration Baseline</span>
+            </div>
+
+            <div class="summary-card">
+              <span class="summary-card-lbl">Daily Protein Goal</span>
+              <div class="summary-card-val" id="resProtein">0 <span>g</span></div>
+              <span class="card-subtitle" id="resProteinSub">Protein Goal</span>
+            </div>
+
+            <div class="summary-card">
+              <span class="summary-card-lbl">Healthy Weight Span</span>
+              <div class="summary-card-val" id="resHealthyWeight">0 <span>kg</span></div>
+              <span class="card-subtitle">Optimal BMI Range</span>
+            </div>
+
+            <div class="summary-card">
+              <span class="summary-card-lbl">Primary Focus Goal</span>
+              <div class="summary-card-val" id="resPrimaryGoal" style="font-size:1.1rem; color:var(--secondary);">Focus
+              </div>
+              <span class="card-subtitle">AI Tailored Strategy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Navigation -->
+        <footer class="wizard-footer">
+
+          <button type="button" class="btn btn-secondary" onclick="logoutWizard()">
+
+            <i data-lucide="log-out" style="width:16px;"></i>
+            Logout
+
+          </button>
+
+          <button type="button" class="btn btn-secondary" id="btnPrev" onclick="navigateStep(-1)" disabled>
+
+            <i data-lucide="arrow-left" style="width:16px;"></i>
+            Back
+
+          </button>
+
+          <button type="button" class="btn btn-primary" id="btnNext" onclick="navigateStep(1)">
+
+            <span id="btnNextText">Begin Journey</span>
+
+            <i data-lucide="arrow-right" style="width:16px;"></i>
+
+          </button>
+
+        </footer>
+
+      </form>
+    </main>
+
+  </div>
+
+
+  <!-- Quit Profile Setup Confirmation -->
+  <div class="quit-dialog-backdrop" id="quitDialog" aria-hidden="true">
+    <div class="quit-dialog" role="dialog" aria-modal="true" aria-labelledby="quitDialogTitle">
+      <div class="quit-dialog-icon">
+        <i data-lucide="triangle-alert"></i>
+      </div>
+      <h2 id="quitDialogTitle">Quit profile setup?</h2>
+      <p>Your current profile setup changes have not been finalized. If you leave now, they will not be saved.</p>
+      <div class="quit-dialog-actions">
+        <button type="button" class="btn btn-secondary" onclick="closeWizardExitDialog()">No, Continue</button>
+        <button type="button" class="btn btn-primary" onclick="confirmWizardExit()">Yes, Quit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Overlay Screen -->
+  <div class="success-overlay" id="successOverlay">
+    <svg class="success-svg-check" viewBox="0 0 52 52">
+      <circle cx="26" cy="26" r="25" />
+      <path d="M14 27l7 7 16-16" />
+    </svg>
+    <div style="font-size:1.8rem; font-weight:800; color:#FFF;">Setup Complete</div>
+    <div style="color:var(--text-secondary); font-size:1rem;">Your AI Wellness Journey Begins</div>
+    <div class="countdown-num" id="countdownVal">3</div>
+  </div>
+
+  <!-- ==========================================================================
+     JAVASCRIPT: STATE MANAGEMENT, SUPABASE & CALCULATIONS
+     ========================================================================== -->
+  <script>
+    // --------------------------------------------------
+    // 1. SUPABASE CLIENT & STATE
+    // --------------------------------------------------
+    const db = window.supabaseClient;
+    (async () => {
+
+      const {
+        data: { session }
+      } = await db.auth.getSession();
+
+      if (!session) {
+
+        window.location.replace("login.html");
+
+      }
+
+    })();
+    if (!db) {
+      console.error("Supabase client not found.");
+    }
+    let currentStep = 1;
+    const totalSteps = 9;
+
+    // Single source of truth. Numeric physical measurements internally always normalized to CM and KG.
+    const wizardState = {
+      units: { height: 'cm', weight: 'kg', water: 'ml' },
+      body_metrics: { age: 28, gender: 'male', height_cm: 175, weight_kg: 70 },
+      lifestyle_profile: {
+        activity_level: 'sedentary',
+        sleep_hours: 7.5,
+        sleep_quality: 'good',
+        smoking: 'Never',
+        alcohol: 'Never',
+        water_glasses: 5,
+        water_intake_ml: 1000,
+        water_confirmed: false
+      },
+      user_goals: { goals: ['Lose Weight'], primary_goal: 'Lose Weight', target_date: '' },
+      user_preferences: { diet: 'Vegetarian', intolerances: [], custom_intolerances: [] },
+      user_conditions: { conditions: [], custom_conditions: [] },
+      user_medications: [],
+      user_units: { height: 'cm', weight: 'kg', water: 'ml' }
+    };
+
+    // --------------------------------------------------
+    // 2. INITIALIZATION & DATA RESUME
+    // --------------------------------------------------
+    document.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      initBgCanvas();
+      setupCardToggles();
+      setupRangeSliders();
+      setupTagInputs();
+      setupKeyboardNav();
+
+      // Load user profile from Supabase if logged in
+      await loadUserDataFromSupabase();
+
+      if (wizardState.user_medications.length === 0) {
+        addMedicationRow(); // Add empty row if none loaded
+      }
+
+      updateStepUI();
+    });
+
+    // Load and hydrate all data from database on page load / refresh
+    async function loadUserDataFromSupabase() {
+      if (!db) {
+        console.error("Supabase client is missing");
+        return;
+      }
+
+
+      try {
+        const {
+          data: { session }
+        } = await db.auth.getSession();
+
+        console.log("Wizard Session:", session);
+
+        if (!session) {
+
+          window.location.replace("login.html");
+
+          return;
+
+        }
+        const user = session.user;
+
+        const userId = user.id;
+
+        // Fetch parallel requests across exact database schema
+        const [
+          { data: bodyData },
+          { data: lifeData },
+          { data: goalsData },
+          { data: prefData },
+          { data: condData },
+          { data: medData },
+          { data: unitData }
+        ] = await Promise.all([
+          db.from('body_metrics').select('*').eq('user_id', userId).maybeSingle(),
+          db.from('lifestyle_profile').select('*').eq('user_id', userId).maybeSingle(),
+          db.from('user_goals').select('*').eq('user_id', userId).select(),
+          db.from('user_preferences').select('*').eq('user_id', userId).select(),
+          db.from('user_conditions').select('*').eq('user_id', userId).select(),
+          db.from('user_medications').select('*').eq('user_id', userId),
+          db.from('user_units').select('*').eq('user_id', userId).maybeSingle()
+        ]);
+
+        // Hydrate Body Metrics
+        if (bodyData) {
+
+          wizardState.body_metrics.age =
+            bodyData.age || 28;
+
+          wizardState.body_metrics.gender =
+            bodyData.gender || 'male';
+
+          wizardState.body_metrics.height_cm =
+            bodyData.height_cm || 175;
+
+          wizardState.body_metrics.weight_kg =
+            bodyData.weight_kg || 70;
+
+          wizardState.body_metrics.bmi =
+            bodyData.bmi || 0;
+
+          wizardState.body_metrics.bmr =
+            bodyData.bmr || 0;
+
+          wizardState.body_metrics.daily_calories =
+            bodyData.daily_calories || 0;
+
+          wizardState.body_metrics.daily_water_ml =
+            bodyData.daily_water_ml || 0;
+
+          document.getElementById('ageInput').value =
+            wizardState.body_metrics.age;
+
+          document.getElementById('genderSelect').value =
+            wizardState.body_metrics.gender;
+
+          syncBodyMetricInputFields();
+        }
+
+        // Hydrate Units
+        if (unitData) {
+          wizardState.units.height = unitData.height_unit || "cm";
+          wizardState.units.weight = unitData.weight_unit || "kg";
+          wizardState.units.water = unitData.water_unit || "ml";
+
+          setHeightUnit(wizardState.units.height, false);
+          setWeightUnit(wizardState.units.weight, false);
+          setPrefUnit('height', wizardState.units.height);
+          setPrefUnit('weight', wizardState.units.weight);
+          setPrefUnit('water', wizardState.units.water);
+        } else {
+          syncBodyMetricInputFields();
+        }
+
+        // Hydrate Lifestyle
+        if (lifeData) {
+          wizardState.lifestyle_profile.activity_level = lifeData.activity_level || 'sedentary';
+          wizardState.lifestyle_profile.sleep_hours = lifeData.sleep_hours || 7.5;
+          wizardState.lifestyle_profile.sleep_quality = lifeData.sleep_quality || 'good';
+          wizardState.lifestyle_profile.smoking =
+            lifeData.smoking
+              ? lifeData.smoking.charAt(0).toUpperCase() + lifeData.smoking.slice(1)
+              : "Never";
+          wizardState.lifestyle_profile.alcohol =
+            lifeData.alcohol
+              ? lifeData.alcohol.charAt(0).toUpperCase() + lifeData.alcohol.slice(1)
+              : "Never";
+          const savedWaterMl = Number(lifeData.water_intake_ml);
+
+          wizardState.lifestyle_profile.water_intake_ml =
+            Number.isFinite(savedWaterMl) && savedWaterMl > 0
+              ? savedWaterMl
+              : 200;
+
+
+          wizardState.lifestyle_profile.water_glasses =
+            Math.max(
+              1,
+              Math.min(
+                10,
+                Math.round(
+                  wizardState.lifestyle_profile.water_intake_ml / 200
+                )
+              )
+            );
+
+          // Restore confirmed water state
+          wizardState.lifestyle_profile.water_confirmed =
+            savedWaterMl > 0;
+
+          console.log("WATER CONFIRMED RESTORE:", {
+            glasses: wizardState.lifestyle_profile.water_glasses,
+            ml: wizardState.lifestyle_profile.water_intake_ml,
+            confirmed: wizardState.lifestyle_profile.water_confirmed
+          });
+
+
+          updateWaterGlassesUI(
+            wizardState.lifestyle_profile.water_glasses
+          );
+
+          console.log(
+            "WATER RESTORE:",
+            wizardState.lifestyle_profile.water_intake_ml,
+            wizardState.lifestyle_profile.water_glasses
+          );
+          selectCardByValue('#activityCards', wizardState.lifestyle_profile.activity_level);
+          selectCardByValue('#sleepQualityCards', wizardState.lifestyle_profile.sleep_quality);
+          document.getElementById('sleepRange').value = wizardState.lifestyle_profile.sleep_hours;
+          document.getElementById('sleepValBadge').innerText = `${wizardState.lifestyle_profile.sleep_hours} hrs`;
+          document.getElementById("smokingSelect").value =
+            wizardState.lifestyle_profile.smoking;
+          document.getElementById("alcoholSelect").value =
+            wizardState.lifestyle_profile.alcohol;
+          updateWaterGlassesUI(wizardState.lifestyle_profile.water_glasses);
+        }
+
+        // Hydrate Goals
+        if (Array.isArray(goalsData) && goalsData.length > 0) {
+
+          wizardState.user_goals.goals =
+            goalsData
+              .map(g => g.goal_name)
+              .filter(Boolean);
+
+          wizardState.user_goals.primary_goal =
+            goalsData.find(g => g.is_primary)?.goal_name ||
+            wizardState.user_goals.goals[0] ||
+            "";
+
+          wizardState.user_goals.target_date =
+            goalsData.find(g => g.target_date)?.target_date ||
+            "";
+
+          selectCardsByValues(
+            "#goalsGrid",
+            wizardState.user_goals.goals
+          );
+
+          document.getElementById(
+            "primaryGoalSelect"
+          ).value =
+            wizardState.user_goals.primary_goal;
+
+          document.getElementById(
+            "targetDatePicker"
+          ).value =
+            wizardState.user_goals.target_date;
+
+          console.log(
+            "RESTORED GOALS:",
+            wizardState.user_goals
+          );
+        }
+
+
+        // Hydrate Preferences
+        if (Array.isArray(prefData)) {
+
+          const dietValues = prefData
+            .filter(p => p.category === "diet")
+            .map(p => p.value)
+            .filter(Boolean);
+
+          const allIntoleranceValues = prefData
+            .filter(p => p.category === "intolerance")
+            .map(p => p.value)
+            .filter(Boolean);
+
+          // Get the predefined intolerance values from the actual UI
+          const predefinedIntolerances = Array.from(
+            document.querySelectorAll(
+              "#intoleranceCards .selectable-card"
+            )
+          ).map(card => card.dataset.value);
+
+          // Separate predefined vs custom
+          const predefinedValues =
+            allIntoleranceValues.filter(value =>
+              predefinedIntolerances.includes(value)
+            );
+
+          const customValues =
+            allIntoleranceValues.filter(value =>
+              !predefinedIntolerances.includes(value)
+            );
+
+          wizardState.user_preferences = {
+            diet: dietValues,
+            intolerances: predefinedValues,
+            custom_intolerances: customValues
+          };
+
+          // Restore diet
+          document
+            .querySelectorAll("#dietCards .selectable-card")
+            .forEach(card => {
+
+              card.classList.toggle(
+                "selected",
+                dietValues.includes(card.dataset.value)
+              );
+
+            });
+
+          // Restore predefined intolerances
+          document
+            .querySelectorAll("#intoleranceCards .selectable-card")
+            .forEach(card => {
+
+              card.classList.toggle(
+                "selected",
+                predefinedValues.includes(card.dataset.value)
+              );
+
+            });
+
+          // Restore custom intolerance chips
+          const customContainer =
+            document.getElementById(
+              "customIntoleranceContainer"
+            );
+
+          const customInput =
+            document.getElementById(
+              "customIntoleranceInput"
+            );
+
+          if (customContainer && customInput) {
+
+            customContainer
+              .querySelectorAll(".tag-chip")
+              .forEach(chip => chip.remove());
+
+            customValues.forEach(value => {
+
+              const chip =
+                document.createElement("div");
+
+              chip.className = "tag-chip";
+
+              chip.innerHTML = `
+      ${value}
+      <i
+        data-lucide="x"
+        class="tag-chip-remove"
+        style="width:12px;"
+      ></i>
+    `;
+
+              const removeButton =
+                chip.querySelector(".tag-chip-remove");
+
+              removeButton.addEventListener("click", () => {
+
+                const currentArray =
+                  wizardState.user_preferences
+                    .custom_intolerances;
+
+                const index =
+                  currentArray.indexOf(value);
+
+                if (index > -1) {
+                  currentArray.splice(index, 1);
+                }
+
+                chip.remove();
+
+                lucide.createIcons();
+
+              });
+
+              customContainer.insertBefore(
+                chip,
+                customInput
+              );
+
+            });
+
+            lucide.createIcons();
+          }
+
+          console.log(
+            "RESTORED PREFERENCES:",
+            wizardState.user_preferences
+          );
+        }
+
+        // Hydrate Conditions
+        if (Array.isArray(condData)) {
+
+          const predefinedConditionValues = Array.from(
+            document.querySelectorAll("#conditionsGrid .selectable-card")
+          ).map(card => card.dataset.value);
+
+          const allConditionValues = condData
+            .map(c => c.condition_name)
+            .filter(Boolean);
+
+          const predefinedConditions =
+            allConditionValues.filter(value =>
+              predefinedConditionValues.includes(value)
+            );
+
+          const customConditions =
+            allConditionValues.filter(value =>
+              !predefinedConditionValues.includes(value)
+            );
+
+          wizardState.user_conditions = {
+            conditions: predefinedConditions,
+            custom_conditions: customConditions
+          };
+
+          // Restore predefined condition cards
+          document
+            .querySelectorAll("#conditionsGrid .selectable-card")
+            .forEach(card => {
+
+              card.classList.toggle(
+                "selected",
+                predefinedConditions.includes(card.dataset.value)
+              );
+
+            });
+
+          // Restore custom condition chips
+          const customContainer =
+            document.getElementById("customConditionContainer");
+
+          const customInput =
+            document.getElementById("customConditionInput");
+
+          if (customContainer && customInput) {
+
+            customContainer
+              .querySelectorAll(".tag-chip")
+              .forEach(chip => chip.remove());
+
+            customConditions.forEach(value => {
+
+              const chip =
+                document.createElement("div");
+
+              chip.className = "tag-chip";
+
+              chip.innerHTML = `
+      ${value}
+      <i
+        data-lucide="x"
+        class="tag-chip-remove"
+        style="width:12px;"
+      ></i>
+    `;
+
+              const removeButton =
+                chip.querySelector(".tag-chip-remove");
+
+              removeButton.addEventListener("click", () => {
+
+                const index =
+                  wizardState.user_conditions.custom_conditions
+                    .indexOf(value);
+
+                if (index > -1) {
+                  wizardState.user_conditions.custom_conditions
+                    .splice(index, 1);
+                }
+
+                chip.remove();
+                lucide.createIcons();
+
+              });
+
+              customContainer.insertBefore(
+                chip,
+                customInput
+              );
+
+            });
+
+            lucide.createIcons();
+          }
+
+          console.log(
+            "RESTORED CONDITIONS:",
+            wizardState.user_conditions
+          );
+        }
+
+        // ==================================================
+        // HYDRATE MEDICAL CONDITIONS
+        // ==================================================
+        if (Array.isArray(condData)) {
+
+          const conditionValues = condData
+            .map(c => c.condition_name)
+            .filter(Boolean);
+
+          const standardConditions = Array.from(
+            document.querySelectorAll(
+              "#conditionsGrid .selectable-card"
+            )
+          ).map(card => card.dataset.value);
+
+          const customConditions =
+            conditionValues.filter(
+              value => !standardConditions.includes(value)
+            );
+
+          wizardState.user_conditions = {
+            conditions: conditionValues.filter(
+              value => standardConditions.includes(value)
+            ),
+            custom_conditions: customConditions
+          };
+
+          document
+            .querySelectorAll(
+              "#conditionsGrid .selectable-card"
+            )
+            .forEach(card => {
+
+              card.classList.toggle(
+                "selected",
+                wizardState.user_conditions.conditions.includes(
+                  card.dataset.value
+                )
+              );
+
+            });
+
+          const customContainer =
+            document.getElementById(
+              "customConditionContainer"
+            );
+
+          const customInput =
+            document.getElementById(
+              "customConditionInput"
+            );
+
+          if (customContainer && customInput) {
+
+            customContainer
+              .querySelectorAll(".tag-chip")
+              .forEach(chip => chip.remove());
+
+            wizardState.user_conditions
+              .custom_conditions
+              .forEach(value => {
+
+                const chip =
+                  document.createElement("div");
+
+                chip.className = "tag-chip";
+
+                chip.innerHTML =
+                  `${value} <i data-lucide="x" class="tag-chip-remove" style="width:12px;"></i>`;
+
+                const removeButton =
+                  chip.querySelector(".tag-chip-remove");
+
+                removeButton.addEventListener(
+                  "click",
+                  () => {
+
+                    const index =
+                      wizardState.user_conditions
+                        .custom_conditions
+                        .indexOf(value);
+
+                    if (index > -1) {
+                      wizardState.user_conditions
+                        .custom_conditions
+                        .splice(index, 1);
+                    }
+
+                    chip.remove();
+                  }
+                );
+
+                customContainer.insertBefore(
+                  chip,
+                  customInput
+                );
+
+              });
+
+            lucide.createIcons();
+          }
+
+          console.log(
+            "RESTORED CONDITIONS:",
+            wizardState.user_conditions
+          );
+        }
+
+        // Hydrate Medications
+        if (medData && medData.length > 0) {
+          wizardState.user_medications = medData;
+          const container = document.getElementById('medicationRepeater');
+          container.innerHTML = '';
+          medData.forEach(m => {
+            addMedicationRow(m.medication_name, m.dosage, m.frequency);
+          });
+        }
+
+        showToast("Welcome back! Restored your profile.", "success");
+      } catch (e) {
+        console.warn("User state hydration note:", e.message);
+      }
+    }
+
+    // Helper to populate card selections
+    function selectCardByValue(parentSelector, val) {
+      const parent = document.querySelector(parentSelector);
+      if (!parent) return;
+      parent.querySelectorAll('.selectable-card').forEach(c => {
+        c.classList.toggle('selected', c.getAttribute('data-value') === val);
+      });
+    }
+
+    function selectCardsByValues(parentSelector, vals) {
+      const parent = document.querySelector(parentSelector);
+      if (!parent || !Array.isArray(vals)) return;
+      parent.querySelectorAll('.selectable-card').forEach(c => {
+        c.classList.toggle('selected', vals.includes(c.getAttribute('data-value')));
+      });
+    }
+
+    // Populate height/weight input controls based on current unit selection
+    function syncBodyMetricInputFields() {
+      if (wizardState.units.height === 'cm') {
+        document.getElementById('heightCmInput').value = wizardState.body_metrics.height_cm ? Math.round(wizardState.body_metrics.height_cm * 10) / 10 : '';
+      } else {
+        const totalInches = wizardState.body_metrics.height_cm / 2.54;
+        const feet = Math.floor(totalInches / 12);
+        const inches = Math.round(totalInches % 12);
+        document.getElementById('heightFtInput').value = feet || '';
+        document.getElementById('heightInInput').value = inches || '';
+      }
+
+      if (wizardState.units.weight === 'kg') {
+        document.getElementById('weightInput').value = wizardState.body_metrics.weight_kg ? Math.round(wizardState.body_metrics.weight_kg * 10) / 10 : '';
+      } else {
+        const lbs = wizardState.body_metrics.weight_kg * 2.20462262;
+        document.getElementById('weightInput').value = wizardState.body_metrics.weight_kg ? Math.round(lbs * 10) / 10 : '';
+      }
+    }
+
+    // --------------------------------------------------
+    // 3. STEP NAVIGATION & AUTO-SAVE
+    // --------------------------------------------------
+    async function navigateStep(dir) {
+      if (dir === 1 && !validateCurrentStep()) return;
+
+      if (dir === 1 && currentStep < totalSteps) {
+        await saveStepData(currentStep);
+      }
+
+      currentStep += dir;
+      if (currentStep < 1) currentStep = 1;
+
+      if (currentStep > totalSteps) {
+        finishOnboarding();
+        return;
+      }
+
+      updateStepUI();
+    }
+
+    function updateStepUI() {
+      // Toggle Step Visibility
+      document.querySelectorAll('.step-view').forEach(view => {
+        const stepNum = parseInt(view.getAttribute('data-step'));
+        view.classList.toggle('active', stepNum === currentStep);
+      });
+
+      // Progress Fill
+      const pct = (currentStep / totalSteps) * 100;
+      document.getElementById('progressFill').style.width = `${pct}%`;
+      document.getElementById('stepIndicator').innerText = `Step ${currentStep} / ${totalSteps}`;
+
+      // Footer Buttons
+      document.getElementById('btnPrev').disabled = (currentStep === 1);
+      const nextBtnText = document.getElementById('btnNextText');
+
+      if (currentStep === 1) nextBtnText.innerText = "Begin Journey";
+      else if (currentStep === totalSteps) {
+        calculateAISummary();
+        nextBtnText.innerText = "Complete Setup";
+      } else {
+        nextBtnText.innerText = "Continue";
+      }
+
+      lucide.createIcons();
+    }
+
+    // --------------------------------------------------
+    // 4. STEP VALIDATION & UNIT READS
+    // --------------------------------------------------
+    function validateCurrentStep() {
+      if (currentStep === 2) {
+        const age = parseInt(document.getElementById('ageInput').value, 10);
+        if (!age || age < 13 || age > 120) {
+          showToast("Please enter a valid age (13 to 120).", "error");
+          return false;
+        }
+
+        let calculatedCm = 0;
+        if (wizardState.units.height === 'cm') {
+          const cmVal = parseFloat(document.getElementById('heightCmInput').value);
+          if (!cmVal || cmVal < 100 || cmVal > 250) {
+            showToast("Please enter a height between 100 cm and 250 cm.", "error");
+            return false;
+          }
+          calculatedCm = cmVal;
+        } else {
+          const feet = parseInt(document.getElementById('heightFtInput').value, 10) || 0;
+          const inches = parseInt(document.getElementById('heightInInput').value, 10) || 0;
+          if (feet < 3 || feet > 8 || inches < 0 || inches > 11) {
+            showToast("Please enter a height between 3'0\" and 8'11\".", "error");
+            return false;
+          }
+          calculatedCm = (feet * 30.48) + (inches * 2.54);
+          if (calculatedCm < 91.44 || calculatedCm > 250) {
+            showToast("Height out of valid range.", "error");
+            return false;
+          }
+        }
+
+        let calculatedKg = 0;
+        const weightVal = parseFloat(document.getElementById('weightInput').value);
+        if (wizardState.units.weight === 'kg') {
+          if (!weightVal || weightVal < 20 || weightVal > 350) {
+            showToast("Please enter a weight between 20 kg and 350 kg.", "error");
+            return false;
+          }
+          calculatedKg = weightVal;
+        } else {
+          if (!weightVal || weightVal < 44 || weightVal > 770) {
+            showToast("Please enter a weight between 44 lbs and 770 lbs.", "error");
+            return false;
+          }
+          calculatedKg = weightVal * 0.45359237;
+        }
+
+        // Commit validated metric values to state
+        wizardState.body_metrics.age = age;
+        wizardState.body_metrics.gender = document.getElementById('genderSelect').value;
+        wizardState.body_metrics.height_cm = calculatedCm;
+        wizardState.body_metrics.weight_kg = calculatedKg;
+      }
+      return true;
+    }
+
+    // --------------------------------------------------
+    // 5. SUPABASE STEP AUTO-SAVE
+    // --------------------------------------------------
+    async function saveStepData(step) {
+      console.log("saveStepData called. STEP =", step);
+      console.trace("WHO CALLED saveStepData?");
+      if (!db) return;
+
+      try {
+        const { data: { user } } = await db.auth.getUser();
+        if (!user) return;
+        const userId = user.id;
+
+        if (step === 2) {
+          // ----------------------------
+          // Read Form Values
+          // ----------------------------
+          const age = parseInt(document.getElementById("ageInput").value);
+          const gender = document.getElementById("genderSelect").value;
+
+          let height;
+          if (wizardState.units.height === "cm") {
+            height = parseFloat(
+              document.getElementById("heightCmInput").value
+            );
+          } else {
+            const ft = parseFloat(
+              document.getElementById("heightFtInput").value || 0
+            );
+            const inches = parseFloat(
+              document.getElementById("heightInInput").value || 0
+            );
+            height = (ft * 12 + inches) * 2.54;
+          }
+          let weight = parseFloat(document.getElementById("weightInput").value);
+
+          // ----------------------------
+          // Unit Conversion
+          // ----------------------------
+          const heightCm = height;
+          const weightKg =
+            wizardState.units.weight === "lbs"
+              ? weight * 0.45359237
+              : weight;
+
+          // ----------------------------
+          // BMI
+          // ----------------------------
+          const heightM = heightCm / 100;
+          const bmi = Number(
+            (weightKg / (heightM * heightM)).toFixed(1)
+          );
+
+          // ----------------------------
+          // BMR (Mifflin St Jeor)
+          // ----------------------------
+          const bmr = Math.round(
+            gender === "male"
+              ? (10 * weightKg) + (6.25 * heightCm) - (5 * age) + 5
+              : (10 * weightKg) + (6.25 * heightCm) - (5 * age) - 161
+          );
+
+          // ----------------------------
+          // Activity Multiplier
+          // ----------------------------
+          const activity =
+            wizardState.lifestyle_profile.activity_level || "sedentary";
+
+          const multiplier = {
+            sedentary: 1.20,
+            light: 1.375,
+            moderate: 1.55,
+            active: 1.725,
+            very_active: 1.90
+          };
+
+          const dailyCalories = Math.round(
+            bmr * (multiplier[activity] || 1.20)
+          );
+
+          // ----------------------------
+          // Water
+          // ----------------------------
+          const dailyWater = Math.round(weightKg * 35);
+
+          // ----------------------------
+          // UPDATE PROFILES
+          // ----------------------------
+          const { error: profileError } = await db
+            .from("profiles")
+            .update({
+              gender: gender,
+              height: height,
+              weight: weight
+            })
+            .eq("id", userId);
+
+          if (profileError) {
+            console.error(profileError);
+            throw profileError;
+          }
+
+          // ----------------------------
+          // UPSERT BODY METRICS
+          // ----------------------------
+          const bodyPayload = {
+            user_id: userId,
+            height_cm: heightCm,
+            weight_kg: weightKg,
+            bmi: bmi,
+            bmr: bmr,
+            daily_calories: dailyCalories,
+            daily_water_ml: dailyWater,
+            target_weight: null
+          };
+
+          const { data, error } = await db
+            .from("body_metrics")
+            .upsert(bodyPayload, {
+              onConflict: "user_id"
+            })
+            .select();
+
+          console.log("BODY UPSERT DATA:", data);
+          console.log("BODY UPSERT ERROR:", error);
+
+          if (error) throw error;
+
+          // ----------------------------
+          // Update Wizard State
+          // ----------------------------
+          wizardState.body_metrics = {
+            user_id: userId,
+            age,
+            gender,
+            height_cm: heightCm,
+            weight_kg: weightKg,
+            bmi,
+            bmr,
+            daily_calories: dailyCalories,
+            daily_water_ml: dailyWater,
+            target_weight: null
+          };
+
+        } else if (step === 3) {
+          // ----------------------------------------
+          // STEP 3 — SAVE LIFESTYLE + CONFIRMED WATER
+          // ----------------------------------------
+
+          console.log("STEP 3 WATER STATE AT SAVE:", {
+            glasses: wizardState.lifestyle_profile.water_glasses,
+            ml: wizardState.lifestyle_profile.water_intake_ml,
+            confirmed: wizardState.lifestyle_profile.water_confirmed
+          });
+
+          const previousWaterGlasses =
+            wizardState.lifestyle_profile.water_glasses;
+
+          const previousWaterMl =
+            wizardState.lifestyle_profile.water_intake_ml;
+
+          const waterConfirmed =
+            wizardState.lifestyle_profile.water_confirmed === true;
+
+          // Build the lifestyle payload using the current UI values
+          const lifestylePayload = {
+            user_id: userId,
+
+            activity_level:
+              document.querySelector('#activityCards .selected')
+                ?.getAttribute('data-value') || 'sedentary',
+
+            sleep_hours:
+              parseFloat(document.getElementById('sleepRange').value),
+
+            sleep_quality:
+              document.querySelector('#sleepQualityCards .selected')
+                ?.getAttribute('data-value') || 'good',
+
+            smoking:
+              (document.getElementById('smokingSelect').value || "Never")
+                .toLowerCase(),
+
+            alcohol:
+              (document.getElementById('alcoholSelect').value || "Never")
+                .toLowerCase()
+          };
+
+
+          // ----------------------------------------
+          // ONLY SAVE WATER IF USER CONFIRMED IT
+          // ----------------------------------------
+
+          if (
+            waterConfirmed &&
+            Number.isFinite(Number(previousWaterMl)) &&
+            Number(previousWaterMl) > 0
+          ) {
+
+            lifestylePayload.water_intake_ml =
+              Number(previousWaterMl);
+
+            console.log("CONFIRMED WATER WILL BE SAVED:", {
+              glasses: previousWaterGlasses,
+              ml: previousWaterMl
+            });
+
+          } else {
+
+            console.log(
+              "WATER NOT CONFIRMED — EXISTING SUPABASE WATER WILL BE KEPT"
+            );
+
+          }
+
+
+          // ----------------------------------------
+          // SUPABASE SAVE
+          // ----------------------------------------
+
+          console.log(
+            "FINAL LIFESTYLE PAYLOAD:",
+            JSON.stringify(lifestylePayload, null, 2)
+          );
+
+          const {
+            data,
+            error
+          } = await db
+            .from("lifestyle_profile")
+            .upsert(
+              lifestylePayload,
+              {
+                onConflict: "user_id"
+              }
+            )
+            .select();
+
+          console.log("LIFESTYLE DATA:", data);
+          console.log("LIFESTYLE ERROR:", error);
+
+          if (error) throw error;
+
+
+          // ----------------------------------------
+          // RESTORE LOCAL WIZARD STATE
+          // ----------------------------------------
+
+          wizardState.lifestyle_profile = {
+            user_id: userId,
+
+            activity_level:
+              lifestylePayload.activity_level,
+
+            sleep_hours:
+              lifestylePayload.sleep_hours,
+
+            sleep_quality:
+              lifestylePayload.sleep_quality,
+
+            smoking:
+              lifestylePayload.smoking,
+
+            alcohol:
+              lifestylePayload.alcohol,
+
+            // Keep the confirmed water state
+            water_glasses:
+              previousWaterGlasses,
+
+            water_intake_ml:
+              waterConfirmed
+                ? Number(previousWaterMl)
+                : previousWaterMl,
+
+            water_confirmed:
+              waterConfirmed
+          };
+
+        } else if (step === 4) {
+          const selectedGoals = Array.from(
+            document.querySelectorAll("#goalsGrid .selected")
+          ).map(card => card.dataset.value);
+
+          const primaryGoal =
+            document.getElementById("primaryGoalSelect").value;
+
+          const targetDate =
+            document.getElementById("targetDatePicker").value;
+
+          console.log("SELECTED GOALS:", selectedGoals);
+          console.log("PRIMARY GOAL:", primaryGoal);
+          console.log("TARGET DATE:", targetDate);
+
+          const { error: deleteError } = await db
+            .from("user_goals")
+            .delete()
+            .eq("user_id", userId);
+
+          if (deleteError) throw deleteError;
+
+          const goalRows = selectedGoals.map(goal => ({
+            user_id: userId,
+            goal_name: goal,
+            is_primary: goal === primaryGoal,
+            target_date: targetDate || null
+          }));
+
+          console.log("GOAL ROWS:", goalRows);
+
+          if (goalRows.length > 0) {
+            const { data: goalData, error: goalError } = await db
+              .from("user_goals")
+              .insert(goalRows)
+              .select();
+
+            console.log("GOAL DATA:", goalData);
+            console.log("GOAL ERROR:", goalError);
+
+            if (goalError) throw goalError;
+          }
+
+        } else if (step === 5) {
+          const rows = [];
+
+          // Diet Preference (single selection)
+          const selectedDiet = document.querySelector("#dietCards .selected");
+          if (selectedDiet) {
+            rows.push({
+              user_id: userId,
+              category: "diet",
+              value: selectedDiet.dataset.value
+            });
+          }
+
+          // Predefined Intolerances
+          document
+            .querySelectorAll("#intoleranceCards .selected")
+            .forEach(card => {
+              rows.push({
+                user_id: userId,
+                category: "intolerance",
+                value: card.dataset.value
+              });
+            });
+
+          // Custom Intolerances
+          (wizardState.user_preferences.custom_intolerances || []).forEach(item => {
+            rows.push({
+              user_id: userId,
+              category: "intolerance",
+              value: item
+            });
+          });
+
+          console.log("PREFERENCE ROWS:", rows);
+
+          const { error: deleteError } = await db
+            .from("user_preferences")
+            .delete()
+            .eq("user_id", userId);
+
+          if (deleteError) throw deleteError;
+
+          if (rows.length > 0) {
+            const { data: prefData, error: prefError } = await db
+              .from("user_preferences")
+              .insert(rows)
+              .select();
+
+            console.log("PREFERENCE DATA:", prefData);
+            console.log("PREFERENCE ERROR:", prefError);
+
+            if (prefError) throw prefError;
+          }
+
+        } else if (step === 6) {
+          const rows = [];
+
+          // Selected Medical Conditions
+          document
+            .querySelectorAll("#conditionsGrid .selected")
+            .forEach(card => {
+              rows.push({
+                user_id: userId,
+                condition_name: card.dataset.value
+              });
+            });
+
+          // Custom Conditions
+          (wizardState.user_conditions.custom_conditions || []).forEach(item => {
+            rows.push({
+              user_id: userId,
+              condition_name: item
+            });
+          });
+
+          console.log("CONDITION ROWS:", rows);
+
+          const { error: deleteError } = await db
+            .from("user_conditions")
+            .delete()
+            .eq("user_id", userId);
+
+          if (deleteError) throw deleteError;
+
+          if (rows.length > 0) {
+            const { data: conditionData, error: conditionError } = await db
+              .from("user_conditions")
+              .insert(rows)
+              .select();
+
+            console.log("CONDITION DATA:", conditionData);
+            console.log("CONDITION ERROR:", conditionError);
+
+            if (conditionError) throw conditionError;
+          }
+
+        } else if (step === 7) {
+
+          // ==========================================
+          // STEP 7 — SAVE WATER + MEDICATIONS
+          // ==========================================
+
+          // ------------------------------------------
+          // SAVE CONFIRMED WATER
+          // ------------------------------------------
+          const waterConfirmed =
+            wizardState.lifestyle_profile.water_confirmed === true;
+
+          const waterGlasses =
+            Number(wizardState.lifestyle_profile.water_glasses || 0);
+
+          const waterMl =
+            Number(wizardState.lifestyle_profile.water_intake_ml || 0);
+
+          console.log("STEP 7 WATER SAVE STATE:", {
+            glasses: waterGlasses,
+            ml: waterMl,
+            confirmed: waterConfirmed
+          });
+
+          if (
+            waterConfirmed &&
+            waterGlasses > 0 &&
+            waterMl > 0
+          ) {
+
+            const { data: waterData, error: waterError } = await db
+              .from("lifestyle_profile")
+              .upsert(
+                {
+                  user_id: userId,
+                  water_intake_ml: waterMl
+                },
+                {
+                  onConflict: "user_id"
+                }
+              )
+              .select();
+
+            console.log("WATER SAVE DATA:", waterData);
+            console.log("WATER SAVE ERROR:", waterError);
+
+            if (waterError) throw waterError;
+
+          } else {
+
+            console.log(
+              "WATER NOT CONFIRMED — EXISTING WATER VALUE KEPT"
+            );
+
+          }
+
+
+          // ------------------------------------------
+          // SAVE MEDICATIONS
+          // ------------------------------------------
+
+          syncMedicationState();
+
+          const { error: deleteError } = await db
+            .from("user_medications")
+            .delete()
+            .eq("user_id", userId);
+
+          if (deleteError) throw deleteError;
+
+          if (wizardState.user_medications.length > 0) {
+
+            const medicationRows = wizardState.user_medications.map(med => ({
+              user_id: userId,
+              medication_name: med.medication_name,
+              dosage: med.dosage || null,
+              frequency: med.frequency || null
+            }));
+
+            console.log(
+              "MEDICATION PAYLOAD:",
+              JSON.stringify(medicationRows, null, 2)
+            );
+
+            const {
+              data: medicationData,
+              error: medicationError
+            } = await db
+              .from("user_medications")
+              .insert(medicationRows)
+              .select();
+
+            console.log(
+              "MEDICATION DATA:",
+              medicationData
+            );
+
+            console.log(
+              "MEDICATION ERROR:",
+              medicationError
+            );
+
+            if (medicationError) {
+              throw medicationError;
+            }
+
+            console.log(
+              "MEDICATION DATA:",
+              medicationData
+            );
+
+            console.log(
+              "MEDICATION ERROR:",
+              medicationError
+            );
+
+            if (medicationError) throw medicationError;
+          }
+
+        } else if (step === 8) {
+          wizardState.user_units = {
+            user_id: userId,
+            height_unit: wizardState.units.height,
+            weight_unit: wizardState.units.weight,
+            water_unit: wizardState.units.water
+          };
+
+          const { data: unitsData, error: unitsError } = await db
+            .from("user_units")
+            .upsert(wizardState.user_units, {
+              onConflict: "user_id"
+            })
+            .select();
+
+          console.log("UNITS DATA:", unitsData);
+          console.log("UNITS ERROR:", unitsError);
+
+          if (unitsError) throw unitsError;
+
+          showToast("Progress saved automatically", "success");
+        }
+
+      } catch (err) {
+        console.error(err);
+        console.error(err.stack);
+        console.warn("Supabase Sync Note:", err.message);
+      }
+    }
+
+    // --------------------------------------------------
+    // 6. METRIC CALCULATIONS & AI SUMMARY (STEP 9)
+    // --------------------------------------------------
+    function syncPrimaryGoalState() {
+      const select = document.getElementById('primaryGoalSelect');
+      if (!select) return;
+
+      const value = select.value;
+      if (!value) return;
+
+      wizardState.user_goals.primary_goal = value;
+
+      const selectedGoals = Array.from(
+        document.querySelectorAll('#goalsGrid .selected')
+      ).map(card => card.dataset.value);
+
+      if (selectedGoals.length && !selectedGoals.includes(value)) {
+        selectedGoals.push(value);
+      }
+
+      if (selectedGoals.length) {
+        wizardState.user_goals.goals = [...new Set(selectedGoals)];
+      }
+
+      const dateInput = document.getElementById('targetDatePicker');
+      if (dateInput) {
+        wizardState.user_goals.target_date = dateInput.value || '';
+      }
+    }
+
+    function calculateAISummary() {
+      // Always read the live Step 4 goal selection immediately before summary calculation.
+      syncPrimaryGoalState();
+
+      const hCm = wizardState.body_metrics.height_cm || 175;
+      const wKg = wizardState.body_metrics.weight_kg || 70;
+      const age = wizardState.body_metrics.age || 28;
+      const isMale = wizardState.body_metrics.gender === 'male';
+
+      // 1. BMI Calculation
+      const hM = hCm / 100;
+      const bmiFloat = wKg / (hM * hM);
+      const bmiDisplay = bmiFloat.toFixed(1);
+
+      // WHO Detailed Categories
+      let bmiCat = "Normal";
+      if (bmiFloat < 16.0) bmiCat = "Severe Thinness";
+      else if (bmiFloat < 17.0) bmiCat = "Moderate Thinness";
+      else if (bmiFloat < 18.5) bmiCat = "Mild Thinness";
+      else if (bmiFloat < 25.0) bmiCat = "Normal";
+      else if (bmiFloat < 30.0) bmiCat = "Overweight";
+      else if (bmiFloat < 35.0) bmiCat = "Obese I";
+      else if (bmiFloat < 40.0) bmiCat = "Obese II";
+      else bmiCat = "Obese III";
+
+      // 2. BMR (Mifflin-St Jeor)
+      const bmr = (10 * wKg) + (6.25 * hCm) - (5 * age) + (isMale ? 5 : -161);
+      const bmrRounded = Math.round(bmr);
+
+      // 3. TDEE Activity Multipliers
+      const actMap = {
+        sedentary: 1.2,
+        light: 1.375,
+        moderate: 1.55,
+        active: 1.725,
+        athlete: 1.9
+      };
+      const activityLevel = wizardState.lifestyle_profile.activity_level || 'sedentary';
+      const tdee = Math.round(bmr * (actMap[activityLevel] || 1.2));
+
+      // 4. Goal Calories
+      const primaryGoal = wizardState.user_goals.primary_goal || 'Healthy Lifestyle';
+      let goalCalories = tdee;
+      if (primaryGoal === 'Lose Weight') goalCalories = tdee - 500;
+      else if (primaryGoal === 'Gain Muscle') goalCalories = tdee + 300;
+
+      // 5. Goal & Activity Specific Protein Intake
+      let proteinMultiplier = 1.2;
+      if (activityLevel === 'athlete') proteinMultiplier = 2.2;
+      else if (primaryGoal === 'Gain Muscle') proteinMultiplier = 2.0;
+      else if (primaryGoal === 'Lose Weight') proteinMultiplier = 1.6;
+      else proteinMultiplier = 1.2;
+
+      const proteinGrams = Math.round(wKg * proteinMultiplier);
+
+      // 6. Water Intake
+      let waterMl = 35 * wKg;
+      if (activityLevel === 'active') waterMl += 500;
+      if (activityLevel === 'athlete') waterMl += 700;
+      waterMl = Math.round(waterMl);
+
+      // 7. Healthy Weight Range (BMI 18.5 - 24.9)
+      const minHealthyKg = 18.5 * hM * hM;
+      const maxHealthyKg = 24.9 * hM * hM;
+
+      // Display Unit Format Conversions for Final Step
+      let displayWaterVal = `${waterMl} <span>ml</span>`;
+      if (wizardState.units.water === 'oz') {
+        const waterOz = Math.round(waterMl / 29.5735);
+        displayWaterVal = `${waterOz} <span>oz</span>`;
+      }
+
+      let displayHealthyWeight = `${Math.round(minHealthyKg)}–${Math.round(maxHealthyKg)} <span>kg</span>`;
+      if (wizardState.units.weight === 'lbs') {
+        const minLbs = Math.round(minHealthyKg * 2.20462);
+        const maxLbs = Math.round(maxHealthyKg * 2.20462);
+        displayHealthyWeight = `${minLbs}–${maxLbs} <span>lbs</span>`;
+      }
+
+      // Render Summary View Elements
+      document.getElementById('resBMI').innerText = bmiDisplay;
+      document.getElementById('resBMICat').innerText = `Category: ${bmiCat}`;
+      document.getElementById('resBMR').innerHTML = `${bmrRounded} <span>kcal</span>`;
+      document.getElementById('resTDEE').innerText = `Goal Target: ${goalCalories} kcal`;
+      document.getElementById('resWater').innerHTML = displayWaterVal;
+      document.getElementById('resWaterSub').innerText = `Activity adjusted baseline`;
+      document.getElementById('resProtein').innerHTML = `${proteinGrams} <span>g</span>`;
+      document.getElementById('resProteinSub').innerText = `${proteinMultiplier}g / kg ratio`;
+      document.getElementById('resHealthyWeight').innerHTML = displayHealthyWeight;
+      document.getElementById('resPrimaryGoal').innerText = primaryGoal;
+    }
+
+    // --------------------------------------------------
+    // 7. FINISH & ONBOARDING COMPLETE
+    // --------------------------------------------------
+    async function finishOnboarding() {
+      if (db) {
+        try {
+          const { data: { user } } = await db.auth.getUser();
+          if (user) {
+            await db
+              .from('profiles')
+              .update({
+                onboarding_complete: true
+              })
+              .eq('id', user.id);
+          }
+        } catch (e) {
+          console.warn("Profile onboarding status update note:", e.message);
+        }
+      }
+
+      confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+
+      const overlay = document.getElementById('successOverlay');
+      overlay.classList.add('active');
+
+      let count = 3;
+      const countEl = document.getElementById('countdownVal');
+      const timer = setInterval(() => {
+        count--;
+        countEl.innerText = count;
+        if (count === 0) {
+          clearInterval(timer);
+          window.location.href = 'dashboard.html';
+        }
+      }, 1000);
+    }
+
+    // --------------------------------------------------
+    // 8. INTERACTIVE CARDS & CONTROLS SETUP
+    // --------------------------------------------------
+    function setupCardToggles() {
+      // Single Select Groups
+      ['#activityCards', '#sleepQualityCards', '#dietCards'].forEach(selector => {
+        const parent = document.querySelector(selector);
+        if (!parent) return;
+        parent.addEventListener('click', e => {
+          const card = e.target.closest('.selectable-card');
+          if (!card) return;
+          parent.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+
+          if (selector === '#activityCards') {
+            wizardState.lifestyle_profile.activity_level = card.getAttribute('data-value');
+          }
+        });
+      });
+
+      // Multi Select Groups
+      ['#goalsGrid', '#intoleranceCards', '#conditionsGrid'].forEach(selector => {
+        const parent = document.querySelector(selector);
+        if (!parent) return;
+        parent.addEventListener('click', e => {
+          const card = e.target.closest('.selectable-card');
+          if (!card) return;
+          card.classList.toggle('selected');
+        });
+      });
+
+      // Step 4 goal state synchronization
+      const primaryGoalSelect = document.getElementById('primaryGoalSelect');
+      if (primaryGoalSelect) {
+        primaryGoalSelect.addEventListener('change', () => {
+          wizardState.user_goals.primary_goal = primaryGoalSelect.value || '';
+
+          const value = primaryGoalSelect.value;
+          const goalCard = Array.from(
+            document.querySelectorAll('#goalsGrid .selectable-card')
+          ).find(card => card.dataset.value === value);
+
+          if (goalCard) goalCard.classList.add('selected');
+
+          wizardState.user_goals.goals = Array.from(
+            document.querySelectorAll('#goalsGrid .selected')
+          ).map(card => card.dataset.value);
+        });
+      }
+
+      const targetDatePicker = document.getElementById('targetDatePicker');
+      if (targetDatePicker) {
+        targetDatePicker.addEventListener('change', () => {
+          wizardState.user_goals.target_date = targetDatePicker.value || '';
+        });
+      }
+
+      // Water Glasses Interactive Grid
+      const waterGrid = document.getElementById('waterGlassGrid');
+
+      if (waterGrid) {
+
+        waterGrid.addEventListener('click', (e) => {
+
+          const glass = e.target.closest('.water-glass');
+
+          if (!glass) return;
+
+          const glasses = Array.from(
+            waterGrid.querySelectorAll('.water-glass')
+          );
+
+          const clickedIndex = glasses.indexOf(glass);
+
+          if (clickedIndex === -1) return;
+
+          const count = clickedIndex + 1;
+
+          console.log("WATER GLASS CLICKED:", count);
+
+          updateWaterGlassesUI(count);
+
+        });
+
+      }
+    }
+
+    const confirmWaterBtn =
+      document.getElementById("confirmWaterBtn");
+
+    if (confirmWaterBtn) {
+
+      confirmWaterBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        // Confirm water only — do NOT navigate to another wizard step
+        // existing code... {
+
+        const selectedGlasses =
+          document.querySelectorAll(
+            "#waterGlassGrid .water-glass.filled"
+          ).length;
+
+        const waterMl = selectedGlasses * 200;
+
+        wizardState.lifestyle_profile.water_glasses = selectedGlasses;
+        wizardState.lifestyle_profile.water_intake_ml = waterMl;
+        wizardState.lifestyle_profile.water_confirmed = true;
+
+        // Make the confirmed state explicit
+        window.confirmedWaterGlasses = selectedGlasses;
+        window.confirmedWaterMl = waterMl;
+
+        console.log("WATER CONFIRMED:", {
+          glasses: selectedGlasses,
+          ml: waterMl,
+          confirmed: wizardState.lifestyle_profile.water_confirmed
+        });
+
+        // Ensure the visual state matches the confirmed value
+        const allWaterGlasses =
+          document.querySelectorAll("#waterGlassGrid .water-glass");
+
+        allWaterGlasses.forEach((glass, index) => {
+          glass.classList.toggle(
+            "filled",
+            index < selectedGlasses
+          );
+        });
+
+        const badge =
+          document.getElementById("waterGlassBadge");
+
+        if (badge) {
+          badge.innerText =
+            `${waterMl} ml (${selectedGlasses} glasses)`;
+        }
+
+        confirmWaterBtn.innerHTML = `
+    <i data-lucide="check-circle"></i>
+    <span>Water Intake Confirmed</span>
+    `;
+
+        lucide.createIcons();
+        confirmWaterBtn.classList.add("confirmed");
+
+      });
+
+    }
+
+    function updateWaterGlassesUI(count) {
+      wizardState.lifestyle_profile.water_glasses = count;
+      wizardState.lifestyle_profile.water_intake_ml = count * 200;
+      const glasses = document.querySelectorAll('.water-glass');
+      glasses.forEach((g, gIdx) => {
+        g.classList.toggle('filled', gIdx < count);
+      });
+      document.getElementById('waterGlassBadge').innerText = `${count * 200} ml (${count} glasses)`;
+    }
+
+    function setupRangeSliders() {
+      const range = document.getElementById('sleepRange');
+      const badge = document.getElementById('sleepValBadge');
+      range.addEventListener('input', () => {
+        badge.innerText = `${range.value} hrs`;
+        wizardState.lifestyle_profile.sleep_hours = parseFloat(range.value);
+      });
+    }
+
+    // Units Toggles
+    function setHeightUnit(unit, updateInputs = true) {
+      wizardState.units.height = unit;
+      document.getElementById('btnHeightCm').classList.toggle('active', unit === 'cm');
+      document.getElementById('btnHeightFt').classList.toggle('active', unit === 'ft');
+
+      const cmContainer = document.getElementById('heightCmContainer');
+      const ftContainer = document.getElementById('heightFtContainer');
+
+      if (unit === 'cm') {
+        cmContainer.style.display = 'flex';
+        ftContainer.style.display = 'none';
+      } else {
+        cmContainer.style.display = 'none';
+        ftContainer.style.display = 'flex';
+      }
+
+      if (updateInputs) {
+        syncBodyMetricInputFields();
+      }
+    }
+
+    function setWeightUnit(unit, updateInputs = true) {
+      wizardState.units.weight = unit;
+      document.getElementById('btnWeightKg').classList.toggle('active', unit === 'kg');
+      document.getElementById('btnWeightLbs').classList.toggle('active', unit === 'lbs');
+      document.getElementById('weightInput').placeholder = unit;
+
+      if (updateInputs) {
+        syncBodyMetricInputFields();
+      }
+    }
+
+    function setPrefUnit(category, val) {
+      wizardState.user_units[category] = val;
+      wizardState.units[category] = val === 'lbs' ? 'lbs' : (val === 'ft/in' ? 'ft' : val);
+
+      if (category === 'height') {
+        document.getElementById('unitHeightCm').classList.toggle('active', val === 'cm');
+        document.getElementById('unitHeightFt').classList.toggle('active', val === 'ft/in');
+        setHeightUnit(wizardState.units.height, false);
+      } else if (category === 'weight') {
+        document.getElementById('unitWeightKg').classList.toggle('active', val === 'kg');
+        document.getElementById('unitWeightLbs').classList.toggle('active', val === 'lbs');
+        setWeightUnit(wizardState.units.weight, false);
+      } else if (category === 'water') {
+        document.getElementById('unitWaterMl').classList.toggle('active', val === 'ml');
+        document.getElementById('unitWaterOz').classList.toggle('active', val === 'oz');
+      }
+    }
+
+    // Dynamic Tag Inputs
+    // Dynamic Tag Inputs
+    function setupTagInputs() {
+
+      const bindTagInput = (inputId, containerId) => {
+
+        const inp = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+
+        if (!inp || !container) return;
+
+        inp.addEventListener('keydown', e => {
+
+          if (e.key !== 'Enter') return;
+
+          e.preventDefault();
+
+          const val = inp.value.trim();
+
+          if (!val) return;
+
+          // Always get the CURRENT array from wizardState.
+          // Do not keep a reference to the old array.
+          let targetArray;
+
+          if (inputId === 'customConditionInput') {
+
+            targetArray =
+              wizardState.user_conditions.custom_conditions;
+
+          } else if (inputId === 'customIntoleranceInput') {
+
+            targetArray =
+              wizardState.user_preferences.custom_intolerances;
+
+          }
+
+          if (!Array.isArray(targetArray)) return;
+
+          if (targetArray.includes(val)) {
+
+            inp.value = '';
+            return;
+
+          }
+
+          targetArray.push(val);
+
+          const chip = document.createElement('div');
+
+          chip.className = 'tag-chip';
+
+          chip.innerHTML = `
+      ${val}
+      <i
+        data-lucide="x"
+        class="tag-chip-remove"
+        style="width:12px;"
+      ></i>
+    `;
+
+          const removeButton =
+            chip.querySelector('.tag-chip-remove');
+
+          removeButton.addEventListener('click', () => {
+
+            const currentArray =
+              inputId === 'customConditionInput'
+                ? wizardState.user_conditions.custom_conditions
+                : wizardState.user_preferences.custom_intolerances;
+
+            const index =
+              currentArray.indexOf(val);
+
+            if (index > -1) {
+              currentArray.splice(index, 1);
+            }
+
+            chip.remove();
+
+            lucide.createIcons();
+
+          });
+
+          container.insertBefore(chip, inp);
+
+          inp.value = '';
+
+          lucide.createIcons();
+
+          console.log(
+            `CUSTOM TAG ADDED [${inputId}]:`,
+            val
+          );
+
+        });
+      };
+
+      bindTagInput(
+        'customIntoleranceInput',
+        'customIntoleranceContainer'
+      );
+
+      bindTagInput(
+        'customConditionInput',
+        'customConditionContainer'
+      );
+    }
+
+    // Dynamic Medication Repeater
+    function addMedicationRow(name = '', dosage = '', frequency = 'Daily') {
+      const container = document.getElementById('medicationRepeater');
+      const rowId = Date.now() + Math.random().toString(36).substring(2, 5);
+
+      const row = document.createElement('div');
+      row.className = 'repeater-row';
+      row.id = `med-${rowId}`;
+      row.innerHTML = `
+        <input type="text" class="form-input med-name" placeholder="Medication Name" value="${name}" oninput="syncMedicationState()">
+        <input type="text" class="form-input med-dosage" placeholder="Dosage (e.g. 50mg)" value="${dosage}" oninput="syncMedicationState()">
+        <select class="form-select med-freq" onchange="syncMedicationState()">
+          <option value="Daily" ${frequency === 'Daily' ? 'selected' : ''}>Daily</option>
+          <option value="Twice Daily" ${frequency === 'Twice Daily' ? 'selected' : ''}>Twice Daily</option>
+          <option value="As Needed" ${frequency === 'As Needed' ? 'selected' : ''}>As Needed</option>
+        </select>
+        <button type="button" class="btn-icon-danger" onclick="removeMedicationRow('${rowId}')">
+          <i data-lucide="trash-2" style="width:16px;"></i>
+        </button>
+      `;
+
+      container.appendChild(row);
+      lucide.createIcons();
+      syncMedicationState();
+    }
+
+    function removeMedicationRow(rowId) {
+      const el = document.getElementById(`med-${rowId}`);
+      if (el) el.remove();
+      syncMedicationState();
+    }
+
+    function syncMedicationState() {
+      const rows = document.querySelectorAll('.repeater-row');
+      wizardState.user_medications = [];
+      rows.forEach(r => {
+        const name = r.querySelector('.med-name').value.trim();
+        const dosage = r.querySelector('.med-dosage').value.trim();
+        const freq = r.querySelector('.med-freq').value;
+        if (name) {
+          wizardState.user_medications.push({
+            medication_name: name,
+            dosage,
+            frequency: freq
+          });
+        }
+      });
+    }
+
+    // --------------------------------------------------
+    // 9. TOAST NOTIFICATION SYSTEM
+    // --------------------------------------------------
+    function showToast(msg, type = "info") {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `glass-toast ${type}`;
+      toast.innerHTML = `
+        <i data-lucide="${type === 'error' ? 'alert-circle' : 'check-circle-2'}" class="toast-icon" style="width:18px;"></i>
+        <span>${msg}</span>
+      `;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // --------------------------------------------------
+    // 10. KEYBOARD NAVIGATION SUPPORT
+    // --------------------------------------------------
+    function setupKeyboardNav() {
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA' && e.target.id !== 'customIntoleranceInput' && e.target.id !== 'customConditionInput') {
+          e.preventDefault();
+          navigateStep(1);
+        }
+      });
+    }
+
+    // --------------------------------------------------
+    // 11. ANIMATED CANVAS BACKGROUND
+    // --------------------------------------------------
+    function initBgCanvas() {
+      const canvas = document.getElementById('bgCanvas');
+      const ctx = canvas.getContext('2d');
+      let w, h, mouseX = 0, mouseY = 0;
+
+      function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      document.addEventListener('mousemove', e => {
+        mouseX = (e.clientX - w / 2) * 0.02;
+        mouseY = (e.clientY - h / 2) * 0.02;
+      });
+
+      const particles = Array.from({ length: 45 }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        size: Math.random() * 2 + 0.5,
+        alpha: Math.random() * 0.5 + 0.2,
+        speedX: (Math.random() - 0.5) * 0.3,
+        speedY: (Math.random() - 0.5) * 0.3
+      }));
+
+      let step = 0;
+      function render() {
+        ctx.clearRect(0, 0, w, h);
+        step += 0.005;
+
+        // Floating Gradient Blobs
+        const blob1X = w * 0.3 + Math.sin(step) * 80 + mouseX;
+        const blob1Y = h * 0.3 + Math.cos(step * 0.8) * 80 + mouseY;
+        const grad1 = ctx.createRadialGradient(blob1X, blob1Y, 10, blob1X, blob1Y, 380);
+        grad1.addColorStop(0, 'rgba(124, 92, 255, 0.18)');
+        grad1.addColorStop(1, 'rgba(8, 16, 30, 0)');
+
+        ctx.fillStyle = grad1;
+        ctx.beginPath();
+        ctx.arc(blob1X, blob1Y, 380, 0, Math.PI * 2);
+        ctx.fill();
+
+        const blob2X = w * 0.7 + Math.cos(step * 0.9) * 90 - mouseX;
+        const blob2Y = h * 0.7 + Math.sin(step * 0.7) * 90 - mouseY;
+        const grad2 = ctx.createRadialGradient(blob2X, blob2Y, 10, blob2X, blob2Y, 420);
+        grad2.addColorStop(0, 'rgba(0, 194, 255, 0.12)');
+        grad2.addColorStop(1, 'rgba(8, 16, 30, 0)');
+
+        ctx.fillStyle = grad2;
+        ctx.beginPath();
+        ctx.arc(blob2X, blob2Y, 420, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Tiny Floating Particles
+        particles.forEach(p => {
+          p.x += p.speedX;
+          p.y += p.speedY;
+          if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+          if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+
+          ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        requestAnimationFrame(render);
+      }
+      render();
+    }
+
+    function requestWizardExit() {
+      const dialog = document.getElementById('quitDialog');
+      if (!dialog) return;
+      dialog.classList.add('active');
+      dialog.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('wizard-dialog-open');
+      requestAnimationFrame(() => {
+        const cancelBtn = dialog.querySelector('.btn-secondary');
+        cancelBtn?.focus();
+      });
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function closeWizardExitDialog() {
+      const dialog = document.getElementById('quitDialog');
+      if (!dialog) return;
+      dialog.classList.remove('active');
+      dialog.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('wizard-dialog-open');
+    }
+
+    function confirmWizardExit() {
+      closeWizardExitDialog();
+      window.location.href = "dashboard.html";
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeWizardExitDialog();
+    });
+
+    async function logoutWizard() {
+
+      await db.auth.signOut();
+
+      window.location.href = "index.html";
+
+    }
+  </script>
+</body>
+
+</html>

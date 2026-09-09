@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>AURA — Create Your Account</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --bg-dark: #030712;
+      --cyan-glow: #00f2fe;
+      --purple-glow: #7f00ff;
+      --magenta-glow: #d946ef;
+      --card-bg: rgba(10, 16, 30, 0.55);
+      --border-color: rgba(0, 242, 254, 0.15);
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-dark: #4b5563;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-main);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .app-viewport {
+      display: flex;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      width: 100vw;
+      position: relative;
+      background: url('assets/images/registration/registration-desktop.png') center/cover no-repeat;
+    }
+
+    /* Top Mode Toggle */
+    .top-controls {
+      position: absolute;
+      top: 2rem;
+      right: 2.5rem;
+      z-index: 20;
+    }
+
+    .btn-dark-mode {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      transition: 0.2s;
+    }
+
+    .btn-dark-mode:hover {
+      border-color: var(--cyan-glow);
+    }
+
+    /* Left Panel (45%) - Form Card */
+    .left-panel {
+      flex: 0 0 45%;
+      padding: 3rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+
+    .reg-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 242, 254, 0.02);
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      color: #fff;
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .card-heading {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-heading .cyan-text {
+      color: var(--cyan-glow);
+      text-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      color: var(--text-dark);
+      pointer-events: none;
+    }
+
+    .input-ctrl {
+      width: 100%;
+      background: rgba(3, 8, 20, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.85rem 1rem 0.85rem 2.8rem;
+      color: #fff;
+      font-size: 0.88rem;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .input-ctrl:focus {
+      border-color: var(--cyan-glow);
+      background: rgba(5, 12, 28, 0.85);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+    }
+
+    .input-ctrl:focus~.input-icon {
+      color: var(--cyan-glow);
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    /* Password Strength Bars */
+    .strength-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.2rem;
+    }
+
+    .strength-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      width: 110px;
+    }
+
+    .strength-bars {
+      display: flex;
+      gap: 0.3rem;
+      flex: 1;
+    }
+
+    .bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      transition: 0.3s;
+    }
+
+    /* Gender Pill Group */
+    .gender-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem;
+    }
+
+    .gender-btn {
+      background: rgba(3, 8, 20, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.7rem 0.4rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: 0.25s;
+    }
+
+    .gender-btn:hover {
+      border-color: rgba(0, 242, 254, 0.4);
+      color: #fff;
+    }
+
+    .gender-btn.active {
+      background: rgba(0, 242, 254, 0.08);
+      border-color: var(--cyan-glow);
+      color: #fff;
+      box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+    }
+
+    /* Checkboxes & Submit */
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .check-row input {
+      display: none;
+    }
+
+    .chk-box {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .check-row input:checked+.chk-box {
+      background: var(--cyan-glow);
+      border-color: var(--cyan-glow);
+      color: #000;
+    }
+
+    .check-row a {
+      color: var(--cyan-glow);
+      text-decoration: none;
+    }
+
+    .btn-journey {
+      width: 100%;
+      padding: 0.95rem;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #00f2fe 0%, #3b82f6 50%, #d946ef 100%);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: 0 8px 25px rgba(0, 242, 254, 0.35);
+      margin-top: 0.5rem;
+      transition: 0.3s;
+    }
+
+    .btn-journey:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(0, 242, 254, 0.5);
+    }
+
+    .login-redirect {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1.25rem;
+    }
+
+    .login-redirect a {
+      color: var(--cyan-glow);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Right Panel (55%) - Hero Pitch */
+    .right-panel {
+      flex: 0 0 55%;
+      padding: 4rem 5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-heading {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 500px;
+    }
+
+    .hero-heading .glow-text {
+      background: linear-gradient(135deg, var(--cyan-glow), var(--purple-glow), var(--magenta-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-body {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 480px;
+      margin-top: 1rem;
+    }
+
+    /* Audio Wave Indicator Line */
+    .wave-line-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 2rem 0;
+      opacity: 0.7;
+    }
+
+    .wave-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+    }
+
+    /* 4 Feature Pillars Grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+    }
+
+    .feature-card {
+      background: rgba(10, 16, 30, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 16px;
+      padding: 1.25rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-color);
+      transform: translateY(-4px);
+    }
+
+    .feat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feat-card-1 .feat-icon {
+      color: var(--cyan-glow);
+      background: rgba(0, 242, 254, 0.1);
+    }
+
+    .feat-card-2 .feat-icon {
+      color: var(--purple-glow);
+      background: rgba(127, 0, 255, 0.1);
+    }
+
+    .feat-card-3 .feat-icon {
+      color: #f59e0b;
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .feat-card-4 .feat-icon {
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .feat-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .feat-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Quote Card Over Art */
+    .quote-card {
+      background: rgba(10, 16, 30, 0.6);
+      border: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      max-width: 480px;
+      position: relative;
+      margin-top: 2rem;
+    }
+
+    .quote-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--purple-glow);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .quote-text {
+      font-size: 0.88rem;
+      color: #e5e7eb;
+      line-height: 1.5;
+    }
+
+    .quote-sub {
+      font-size: 0.82rem;
+      color: var(--cyan-glow);
+      margin-top: 0.5rem;
+      font-weight: 600;
+    }
+
+    /* Alert Box */
+    .toast-box {
+      position: fixed;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 0.6rem 1.2rem;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(10px);
+      transition: 0.4s;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .toast-box.active {
+      top: 20px;
+      opacity: 1;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 1024px) {
+      .app-viewport {
+        flex-direction: column-reverse;
+        overflow-y: auto;
+      }
+
+      .left-panel,
+      .right-panel {
+        flex: none;
+        width: 100%;
+        padding: 2rem 1.5rem;
+      }
+
+      .hero-heading {
+        font-size: 2.2rem;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .top-controls {
+        top: 1rem;
+        right: 1rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app-viewport {
+        background-image: url('assets/images/registration/registration-mobile.png');
+      }
+    }
+
+    /* ===========================================================
+   AURA SUCCESS MODAL
+=========================================================== */
+
+    .success-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 8, 20, .78);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transition: .45s ease;
+
+      z-index: 9999;
+    }
+
+    .success-modal.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .success-card {
+
+      width: min(92%, 520px);
+
+      background: rgba(10, 16, 30, .72);
+
+      border: 1px solid rgba(255, 255, 255, .08);
+
+      border-radius: 28px;
+
+      padding: 42px;
+
+      text-align: center;
+
+      backdrop-filter: blur(28px);
+
+      box-shadow:
+        0 30px 80px rgba(0, 0, 0, .55),
+        0 0 60px rgba(0, 242, 254, .08);
+
+      transform: translateY(40px) scale(.92);
+
+      transition: .5s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .success-modal.show .success-card {
+
+      transform: translateY(0) scale(1);
+
+    }
+
+    .success-icon {
+
+      width: 92px;
+
+      height: 92px;
+
+      margin: auto;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      background:
+        radial-gradient(circle,
+          rgba(0, 242, 254, .35),
+          rgba(0, 242, 254, .08));
+
+      border: 1px solid rgba(0, 242, 254, .25);
+
+      box-shadow:
+        0 0 35px rgba(0, 242, 254, .35);
+
+      margin-bottom: 24px;
+    }
+
+    .success-icon i {
+
+      width: 46px;
+
+      height: 46px;
+
+      color: #00f2fe;
+
+    }
+
+    .success-title {
+
+      font-size: 2rem;
+
+      font-weight: 800;
+
+      color: white;
+
+      letter-spacing: .08em;
+
+      margin-bottom: 12px;
+
+    }
+
+    .success-text {
+
+      color: #cbd5e1;
+
+      line-height: 1.7;
+
+      font-size: .95rem;
+
+    }
+
+    .success-email {
+
+      margin: 24px 0;
+
+      padding: 14px;
+
+      border-radius: 14px;
+
+      background: rgba(255, 255, 255, .04);
+
+      border: 1px solid rgba(255, 255, 255, .08);
+
+      color: #00f2fe;
+
+      font-weight: 700;
+
+      word-break: break-all;
+
+    }
+
+    .success-actions {
+
+      display: flex;
+
+      gap: 16px;
+
+      margin-top: 28px;
+
+    }
+
+    .success-btn {
+
+      flex: 1;
+
+      border: none;
+
+      cursor: pointer;
+
+      border-radius: 14px;
+
+      padding: 14px;
+
+      font-weight: 700;
+
+      transition: .3s;
+
+    }
+
+    .gmail-btn {
+
+      background: linear-gradient(135deg, #00f2fe, #3b82f6);
+
+      color: white;
+    }
+
+    .gmail-btn:hover {
+
+      transform: translateY(-3px);
+
+      box-shadow: 0 15px 30px rgba(0, 242, 254, .3);
+
+    }
+
+    .login-btn {
+
+      background: rgba(255, 255, 255, .05);
+
+      color: white;
+
+      border: 1px solid rgba(255, 255, 255, .08);
+
+    }
+
+    .login-btn:hover {
+
+      background: rgba(255, 255, 255, .09);
+
+    }
+
+    @media(max-width:700px) {
+
+      .success-card {
+
+        padding: 28px;
+
+      }
+
+      .success-actions {
+
+        flex-direction: column;
+
+      }
+
+      .success-title {
+
+        font-size: 1.6rem;
+
+      }
+
+    }
+
+    /* ===========================================
+   SUCCESS CHECK ANIMATION
+===========================================*/
+
+    .checkmark {
+
+      width: 72px;
+
+      height: 72px;
+
+    }
+
+    .checkmark-circle {
+
+      stroke: #00f2fe;
+
+      stroke-width: 2;
+
+      opacity: .25;
+
+    }
+
+    .checkmark-check {
+
+      stroke: #00f2fe;
+
+      stroke-width: 4;
+
+      stroke-linecap: round;
+
+      stroke-linejoin: round;
+
+      stroke-dasharray: 50;
+
+      stroke-dashoffset: 50;
+
+      animation:
+
+        drawCheck .7s ease forwards,
+
+        glowCheck 2.2s ease infinite .7s;
+
+    }
+
+    @keyframes drawCheck {
+
+      to {
+
+        stroke-dashoffset: 0;
+
+      }
+
+    }
+
+    @keyframes glowCheck {
+
+      0%,
+      100% {
+
+        filter: drop-shadow(0 0 4px #00f2fe);
+
+      }
+
+      50% {
+
+        filter:
+          drop-shadow(0 0 12px #00f2fe) drop-shadow(0 0 24px #00f2fe);
+
+      }
+
+    }
+
+    .gmail-btn {
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      gap: 12px;
+
+    }
+
+    .loader {
+
+      width: 18px;
+
+      height: 18px;
+
+      border: 2px solid rgba(255, 255, 255, .25);
+
+      border-top: 2px solid white;
+
+      border-radius: 50%;
+
+      animation: spin .8s linear infinite;
+
+    }
+
+    @keyframes spin {
+
+      to {
+
+        transform: rotate(360deg);
+
+      }
+
+    }
+
+    .btn-journey:disabled {
+
+      opacity: .85;
+
+      cursor: not-allowed;
+
+    }
+  
+/* ============================================================
+   AURA REGISTRATION — FINAL SINGLE-VIEWPORT FIT
+   Visual/layout only. Existing registration JS + form markup intact.
+   ============================================================ */
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  overflow: hidden !important;
+  overscroll-behavior: none;
+}
+
+.app-viewport {
+  width: 100vw !important;
+  height: 100svh !important;
+  min-height: 100svh !important;
+  max-height: 100svh !important;
+  padding: clamp(.85rem, 1.8vh, 1.25rem) clamp(.9rem, 2vw, 1.5rem) .9rem !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: row !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+/* Top nav-style brand placement */
+.site-nav {
+  position: absolute;
+  top: clamp(.85rem, 1.8vh, 1.25rem);
+  left: clamp(.9rem, 2vw, 1.5rem);
+  right: clamp(.9rem, 2vw, 1.5rem);
+  height: 3.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.site-nav .brand-title {
+  pointer-events: auto;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: .7rem !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  color: #fff !important;
+  font-size: clamp(1.35rem, 2vw, 1.65rem) !important;
+  font-weight: 800 !important;
+  letter-spacing: .16em !important;
+  cursor: pointer;
+}
+
+.site-nav .brand-title::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: 50%;
+  border: 2px solid #a855f7;
+  box-shadow: 0 0 12px rgba(168,85,247,.72), 0 0 24px rgba(168,85,247,.24);
+}
+
+/* Remove only the requested theme control; keep the rest of the page/logic. */
+.top-controls { display: none !important; }
+
+/* Desktop: form left, only hero heading/subheading right. */
+.left-panel {
+  flex: 0 0 50% !important;
+  width: 50% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: clamp(4rem, 8vh, 5.5rem) clamp(1rem, 3vw, 3.5rem) clamp(1rem, 2vh, 1.8rem) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+}
+
+.right-panel {
+  flex: 0 0 50% !important;
+  width: 50% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  padding: clamp(4.25rem, 8.5vh, 5.75rem) clamp(2rem, 5vw, 5.5rem) clamp(1rem, 2vh, 1.8rem) !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+  border-left: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Preserve form entirely, but make it compact enough to fit. */
+.reg-card {
+  width: min(100%, 500px) !important;
+  max-width: 500px !important;
+  max-height: calc(100svh - 6rem) !important;
+  padding: clamp(1rem, 1.6vw, 1.6rem) !important;
+  border-radius: 24px !important;
+  background: rgba(10, 16, 30, 0.46) !important;
+  backdrop-filter: blur(22px) !important;
+  -webkit-backdrop-filter: blur(22px) !important;
+  overflow: hidden !important;
+}
+
+/* hero copy: only heading + supporting text */
+.right-panel > div {
+  width: min(100%, 620px) !important;
+  padding-top: clamp(.35rem, 1.2vh, 1rem) !important;
+}
+
+.hero-heading {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: clamp(2.6rem, 4.6vw, 4.3rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -.025em !important;
+  color: #fff !important;
+  max-width: 620px !important;
+}
+
+.hero-body {
+  max-width: 560px !important;
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+  margin-top: 1rem !important;
+  color: rgba(248,250,252,.86) !important;
+}
+
+/* Hide only the right-side decorative content; the form remains complete. */
+.wave-line-wrap,
+.feature-grid,
+.quote-card {
+  display: none !important;
+}
+
+/* Compact form rhythm. */
+.brand-sub { margin-bottom: .9rem !important; }
+.card-heading { font-size: clamp(1.35rem, 2vw, 1.8rem) !important; margin-bottom: .15rem !important; }
+.card-desc { margin-bottom: 1rem !important; font-size: .8rem !important; }
+
+.form-group { margin-bottom: .75rem !important; gap: .28rem !important; }
+.form-label { font-size: .74rem !important; }
+.input-ctrl { padding: .68rem .8rem .68rem 2.55rem !important; font-size: .82rem !important; }
+.gender-btn { padding: .56rem .3rem !important; font-size: .74rem !important; }
+.strength-row { margin-top: .08rem !important; }
+.strength-lbl { font-size: .64rem !important; width: 100px !important; }
+.bar { height: 3px !important; }
+.check-row { font-size: .7rem !important; }
+.chk-box { width: 15px !important; height: 15px !important; }
+.btn-journey { padding: .78rem !important; font-size: .86rem !important; margin-top: .2rem !important; }
+.login-redirect { font-size: .72rem !important; margin-top: .7rem !important; }
+
+/* Link the existing visible AURA brand to index.html without changing its markup. */
+.brand-title {
+  position: relative;
+}
+.brand-title > a, .brand-title a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+/* Tablet / mobile: hero on top, complete form directly below. */
+@media (max-width: 1024px) {
+  .app-viewport {
+    flex-direction: column !important;
+    padding: 4.25rem .85rem .75rem !important;
+  }
+
+  .site-nav {
+    top: .9rem !important;
+    left: .85rem !important;
+    right: .85rem !important;
+    height: 2.6rem !important;
+  }
+
+  .site-nav .brand-title {
+    font-size: 1.15rem !important;
+  }
+
+  .site-nav .brand-title::before {
+    width: 18px !important;
+    height: 18px !important;
+    flex-basis: 18px !important;
+  }
+
+  .right-panel {
+    order: 0 !important;
+    flex: 0 0 22% !important;
+    width: 100% !important;
+    height: 22% !important;
+    padding: .5rem .65rem .25rem !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  .left-panel {
+    order: 1 !important;
+    flex: 0 0 78% !important;
+    width: 100% !important;
+    height: 78% !important;
+    padding: .5rem .65rem .9rem !important;
+    overflow-y: auto !important;
+  }
+
+  .right-panel > div {
+    text-align: left !important;
+    width: min(94%, 700px) !important;
+    padding-top: .3rem !important;
+  }
+
+  .hero-heading {
+    font-size: clamp(1.9rem, 6.5vw, 3rem) !important;
+  }
+
+  .hero-body {
+    font-size: .82rem !important;
+    line-height: 1.42 !important;
+    margin: .65rem 0 0 !important;
+  }
+
+  .reg-card {
+    width: min(100%, 540px) !important;
+    max-height: calc(78svh - .6rem) !important;
+    padding: 1rem .95rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-viewport {
+    background-image: url('assets/images/registration/registration-mobile.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    padding: 4rem .7rem .6rem !important;
+  }
+
+  .site-nav {
+    top: .75rem !important;
+    left: .7rem !important;
+    right: .7rem !important;
+    height: 2.4rem !important;
+  }
+
+  .site-nav .brand-title {
+    font-size: 1rem !important;
+    letter-spacing: .14em !important;
+  }
+
+  .site-nav .brand-title::before {
+    width: 16px !important;
+    height: 16px !important;
+    flex-basis: 16px !important;
+  }
+
+  .right-panel {
+    flex-basis: 18% !important;
+    height: 18% !important;
+    padding: .25rem .35rem .1rem !important;
+  }
+
+  .left-panel {
+    flex-basis: 82% !important;
+    height: 82% !important;
+    padding: .35rem .35rem .65rem !important;
+    overflow-y: auto !important;
+  }
+
+  .hero-heading {
+    font-size: clamp(1.72rem, 8.2vw, 2.45rem) !important;
+    line-height: 1.03 !important;
+  }
+
+  .hero-body {
+    max-width: 100% !important;
+    font-size: .7rem !important;
+    line-height: 1.35 !important;
+    margin-top: .42rem !important;
+  }
+
+  .reg-card {
+    width: min(100%, 430px) !important;
+    max-height: calc(82svh - .5rem) !important;
+    padding: .9rem .82rem !important;
+    border-radius: 18px !important;
+  }
+
+  .brand-sub {
+    font-size: .62rem !important;
+    margin-bottom: .65rem !important;
+  }
+
+  .card-heading {
+    font-size: 1.12rem !important;
+  }
+
+  .card-desc {
+    font-size: .67rem !important;
+    margin-bottom: .62rem !important;
+  }
+
+  .form-group {
+    margin-bottom: .5rem !important;
+    gap: .22rem !important;
+  }
+
+  .form-label {
+    font-size: .64rem !important;
+  }
+
+  .input-ctrl {
+    padding: .62rem .68rem .62rem 2.15rem !important;
+    border-radius: 9px !important;
+    font-size: .73rem !important;
+  }
+
+  .input-icon {
+    left: .72rem !important;
+  }
+
+  .gender-grid {
+    gap: .38rem !important;
+  }
+
+  .gender-btn {
+    padding: .5rem .25rem !important;
+    border-radius: 8px !important;
+    font-size: .64rem !important;
+    gap: .22rem !important;
+  }
+
+  .gender-btn i {
+    width: 12px !important;
+  }
+
+  .strength-row {
+    gap: .3rem !important;
+    margin-top: .05rem !important;
+  }
+
+  .strength-lbl {
+    width: 88px !important;
+    font-size: .56rem !important;
+  }
+
+  .bar {
+    height: 2px !important;
+  }
+
+  .check-row {
+    gap: .38rem !important;
+    font-size: .6rem !important;
+  }
+
+  .chk-box {
+    width: 13px !important;
+    height: 13px !important;
+    border-radius: 3px !important;
+  }
+
+  .btn-journey {
+    padding: .7rem !important;
+    border-radius: 10px !important;
+    font-size: .74rem !important;
+    margin-top: .15rem !important;
+  }
+
+  .login-redirect {
+    font-size: .62rem !important;
+    margin-top: .55rem !important;
+  }
+}
+
+/* Short mobile screens: further compress but keep every form control visible. */
+@media (max-height: 720px) and (max-width: 640px) {
+  .app-viewport {
+    padding-top: 3.75rem !important;
+  }
+
+  .site-nav {
+    top: .65rem !important;
+    height: 2.2rem !important;
+  }
+
+  .right-panel {
+    flex-basis: 18% !important;
+    height: 18% !important;
+  }
+
+  .left-panel {
+    flex-basis: 82% !important;
+    height: 82% !important;
+  }
+
+  .hero-heading {
+    font-size: 1.55rem !important;
+  }
+
+  .hero-body {
+    font-size: .62rem !important;
+  }
+
+  .reg-card {
+    padding: .8rem .72rem !important;
+  }
+
+  .brand-sub {
+    margin-bottom: .5rem !important;
+  }
+
+  .card-desc {
+    margin-bottom: .45rem !important;
+  }
+
+  .form-group {
+    margin-bottom: .38rem !important;
+  }
+
+  .input-ctrl {
+    padding-top: .54rem !important;
+    padding-bottom: .54rem !important;
+  }
+
+  .gender-btn {
+    padding-top: .44rem !important;
+    padding-bottom: .44rem !important;
+  }
+
+  .btn-journey {
+    padding: .62rem !important;
+  }
+}
+
+  
+</style>
+</head>
+
+<body>
+
+  <div class="app-viewport">
+
+    <header class="site-nav" aria-label="Registration navigation">
+      <a class="brand-title" href="index.html" aria-label="Go to AURA home">AURA</a>
+    </header>
+
+    <!-- Top Right Controls -->
+    <div class="top-controls">
+      <button class="btn-dark-mode" aria-label="Toggle Mode">
+        <i data-lucide="moon" style="width:14px; color:var(--cyan-glow);"></i>
+        <span>Dark Mode</span>
+      </button>
+    </div>
+
+    <!-- Alert Toast -->
+    <div class="toast-box" id="toastBox">
+      <i data-lucide="alert-circle" style="width:16px;"></i>
+      <span id="toastMsg">Please accept terms to continue.</span>
+    </div>
+
+    <!-- ==========================================================================
+       LEFT PANEL: REGISTRATION CARD
+       ========================================================================== -->
+    <section class="left-panel">
+      <div class="reg-card">
+
+        <div class="brand-sub">The AI Wellness Operating System</div>
+
+        <h2 class="card-heading">Create Your <span class="cyan-text">Aura</span> Account</h2>
+        <p class="card-desc">Begin your personalized wellness journey today.</p>
+
+        <form id="regForm" onsubmit="handleRegistration(event)">
+
+          <!-- Full Name -->
+          <div class="form-group">
+            <label class="form-label" for="fullName">Full Name</label>
+            <div class="input-wrap">
+              <i data-lucide="user" class="input-icon" style="width:18px;"></i>
+              <input type="text" id="fullName" class="input-ctrl" placeholder="Enter your full name" required>
+            </div>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <div class="input-wrap">
+              <i data-lucide="mail" class="input-icon" style="width:18px;"></i>
+              <input type="email" id="email" class="input-ctrl" placeholder="Enter your email address" required>
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <div class="input-wrap">
+              <i data-lucide="lock" class="input-icon" style="width:18px;"></i>
+              <input type="password" id="password" class="input-ctrl" placeholder="Create a strong password" required
+                oninput="checkStrength(this.value)">
+              <button type="button" class="eye-btn" onclick="togglePass('password', 'eye1')">
+                <i data-lucide="eye" id="eye1" style="width:18px;"></i>
+              </button>
+            </div>
+            <!-- Strength Indicator Bar -->
+            <div class="strength-row">
+              <span class="strength-lbl">Password strength: <strong id="strengthLabel"
+                  style="color:#ef4444;">Weak</strong></span>
+              <div class="strength-bars">
+                <div class="bar" id="b1"></div>
+                <div class="bar" id="b2"></div>
+                <div class="bar" id="b3"></div>
+                <div class="bar" id="b4"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label class="form-label" for="confirmPassword">Confirm Password</label>
+            <div class="input-wrap">
+              <i data-lucide="lock" class="input-icon" style="width:18px;"></i>
+              <input type="password" id="confirmPassword" class="input-ctrl" placeholder="Confirm your password"
+                required>
+              <button type="button" class="eye-btn" onclick="togglePass('confirmPassword', 'eye2')">
+                <i data-lucide="eye" id="eye2" style="width:18px;"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gender Pills -->
+          <div class="form-group">
+            <label class="form-label">Gender</label>
+            <div class="gender-grid">
+              <button type="button" class="gender-btn active" data-gender="male" onclick="selectGender(this)">
+                <i data-lucide="mars" style="width:14px; color:var(--cyan-glow);"></i> Male
+              </button>
+              <button type="button" class="gender-btn" data-gender="female" onclick="selectGender(this)">
+                <i data-lucide="venus" style="width:14px; color:var(--magenta-glow);"></i> Female
+              </button>
+              <button type="button" class="gender-btn" data-gender="other" onclick="selectGender(this)">
+                <i data-lucide="user" style="width:14px;"></i> Prefer not to say
+              </button>
+            </div>
+          </div>
+
+          <!-- Terms & Privacy -->
+          <div class="form-group" style="gap: 0.6rem; margin-top: 0.5rem;">
+            <label class="check-row">
+              <input type="checkbox" id="termsChk">
+              <span class="chk-box">
+                <i data-lucide="check" style="width:12px;"></i>
+              </span>
+              <span>
+                I agree to the
+                <a href="/legal.html" target="_blank" rel="noopener noreferrer">
+                  Terms of Service
+                </a>
+              </span>
+            </label>
+
+            <label class="check-row">
+              <input type="checkbox" id="privacyChk">
+              <span class="chk-box">
+                <i data-lucide="check" style="width:12px;"></i>
+              </span>
+              <span>
+                I agree to the
+                <a href="/privacy.html" target="_blank" rel="noopener noreferrer">
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn-journey">
+            <i data-lucide="sparkles" style="width:18px;"></i>
+            <span>Begin My Journey</span>
+          </button>
+
+          <div class="login-redirect">
+            Already have an account? <a href="login.html">Log in</a>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+       RIGHT PANEL: PITCH & FEATURES
+       ========================================================================== -->
+    <section class="right-panel">
+      <div>
+        <h1 class="hero-heading">
+          Your Journey to<br>
+          <span class="glow-text">A Better You</span>
+        </h1>
+        <p class="hero-body">
+          Aura combines the power of AI, health science, and personalized insights to help you build healthier habits,
+          every single day.
+        </p>
+
+        <!-- Wave Divider -->
+        <div class="wave-line-wrap">
+          <div class="wave-line"></div>
+          <i data-lucide="activity" style="width:18px; color:var(--cyan-glow);"></i>
+          <div class="wave-line"></div>
+        </div>
+
+        <!-- 4 Pillars -->
+        <div class="feature-grid">
+          <div class="feature-card feat-card-1">
+            <div class="feat-icon"><i data-lucide="heart-pulse" style="width:18px;"></i></div>
+            <div class="feat-title">Personalized Insights</div>
+            <div class="feat-desc">AI-powered recommendations just for you.</div>
+          </div>
+          <div class="feature-card feat-card-2">
+            <div class="feat-icon"><i data-lucide="target" style="width:18px;"></i></div>
+            <div class="feat-title">Track & Improve</div>
+            <div class="feat-desc">Monitor your progress and achieve goals.</div>
+          </div>
+          <div class="feature-card feat-card-3">
+            <div class="feat-icon"><i data-lucide="dumbbell" style="width:18px;"></i></div>
+            <div class="feat-title">Health Made Simple</div>
+            <div class="feat-desc">Nutrition, fitness, sleep & more in one place.</div>
+          </div>
+          <div class="feature-card feat-card-4">
+            <div class="feat-icon"><i data-lucide="shield-check" style="width:18px;"></i></div>
+            <div class="feat-title">Secure & Private</div>
+            <div class="feat-desc">Your data is safe with enterprise-grade security.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Quote Box -->
+      <div class="quote-card">
+        <div class="quote-badge"><i data-lucide="quote" style="width:14px;"></i></div>
+        <p class="quote-text">The future of wellness is personalized, intelligent, and proactive.</p>
+        <div class="quote-sub">Welcome to your new beginning.</div>
+      </div>
+    </section>
+
+  </div>
+
+  <div id="successModal" class="success-modal">
+
+    <div class="success-card">
+
+      <div class="success-icon">
+
+        <svg class="checkmark" viewBox="0 0 52 52">
+
+          <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+
+          <path class="checkmark-check" fill="none" d="M14 27 L22 35 L38 18" />
+
+        </svg>
+
+      </div>
+      <h2 class="success-title">
+
+        ACCOUNT CREATED
+
+      </h2>
+
+      <p class="success-text">
+
+        Your Aura account has been created successfully.
+
+        <br><br>
+
+        We've sent a verification email to
+
+      </p>
+
+      <div class="success-email" id="verifyEmail">
+
+        your@email.com
+
+      </div>
+
+      <p class="success-text">
+
+        Please verify your email before logging in.
+
+      </p>
+
+      <div class="success-actions">
+
+        <button class="success-btn gmail-btn" id="openMailBtn">
+
+          <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true">
+
+            <path fill="#EA4335" d="M24 24L6 10v28h8V20l10 8 10-8v18h8V10z" />
+
+            <path fill="#FBBC05" d="M42 10H6l18 14z" />
+
+            <path fill="#34A853" d="M34 38V20l8-10v28z" />
+
+            <path fill="#4285F4" d="M6 38V10l8 10v18z" />
+
+          </svg>
+
+          <span>Open Gmail</span>
+
+        </button>
+
+        <button class="success-btn login-btn" id="gotoLoginBtn">
+
+          Continue to Login
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Aura Configuration -->
+  <script src="config.js"></script>
+
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Shared Supabase Client -->
+  <script src="supabase.js"></script>
+
+  <script>
+
+    function startRegistrationLoading() {
+
+      const btn = document.querySelector(".btn-journey");
+
+      btn.disabled = true;
+
+      btn.innerHTML = `
+    <span class="loader"></span>
+    Creating your Aura...
+`;
+
+    }
+
+    function stopRegistrationLoading() {
+
+      const btn = document.querySelector(".btn-journey");
+
+      btn.disabled = false;
+
+      btn.innerHTML = `
+    <i data-lucide="sparkles" style="width:18px;"></i>
+    <span>Begin My Journey</span>
+`;
+
+      lucide.createIcons();
+
+    }
+
+    const db = window.supabaseClient;
+    let selectedGender = "male";
+    let registeredEmail = "";
+
+    lucide.createIcons();
+
+    // Toggle Password Visibility
+    function togglePass(inputId, eyeId) {
+      const inp = document.getElementById(inputId);
+      const isPass = inp.type === 'password';
+      inp.type = isPass ? 'text' : 'password';
+      document.getElementById(eyeId).setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
+      lucide.createIcons();
+    }
+
+    // Gender Selection
+    function selectGender(btn) {
+
+      document.querySelectorAll(".gender-btn")
+        .forEach(b => b.classList.remove("active"));
+
+      btn.classList.add("active");
+
+      selectedGender = btn.dataset.gender;
+
+    }
+
+    // Dynamic Password Strength Meter
+    function checkStrength(val) {
+      const label = document.getElementById('strengthLabel');
+      const b1 = document.getElementById('b1'), b2 = document.getElementById('b2'), b3 = document.getElementById('b3'), b4 = document.getElementById('b4');
+      [b1, b2, b3, b4].forEach(b => b.style.background = 'rgba(255,255,255,0.1)');
+
+      if (val.length === 0) { label.innerText = 'Weak'; label.style.color = '#ef4444'; return; }
+
+      let score = 0;
+      if (val.length >= 6) score++;
+      if (val.length >= 10) score++;
+      if (/[A-Z]/.test(val) && /[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+
+      if (score <= 1) {
+        label.innerText = 'Weak'; label.style.color = '#ef4444';
+        b1.style.background = '#ef4444';
+      } else if (score === 2) {
+        label.innerText = 'Fair'; label.style.color = '#f59e0b';
+        b1.style.background = b2.style.background = '#f59e0b';
+      } else if (score === 3) {
+        label.innerText = 'Good'; label.style.color = '#3b82f6';
+        b1.style.background = b2.style.background = b3.style.background = '#3b82f6';
+      } else {
+        label.innerText = 'Strong'; label.style.color = '#10b981';
+        b1.style.background = b2.style.background = b3.style.background = b4.style.background = '#10b981';
+      }
+    }
+
+    // Toast Alert
+    function showToast(msg) {
+      const box = document.getElementById('toastBox');
+      document.getElementById('toastMsg').innerText = msg;
+      box.classList.add('active');
+      setTimeout(() => box.classList.remove('active'), 3500);
+    }
+
+    // Handle Form Submit
+    async function handleRegistration(e) {
+      e.preventDefault();
+      const fullName = document.getElementById("fullName").value.trim();
+
+      const email = document.getElementById("email").value.trim();
+
+      const password = document.getElementById("password").value;
+
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      const termsAccepted = document.getElementById("termsChk").checked;
+
+      const privacyAccepted = document.getElementById("privacyChk").checked;
+
+      if (fullName === "") {
+
+        showToast("Please enter your full name.");
+
+        return;
+
+      }
+
+      if (email === "") {
+
+        showToast("Please enter your email.");
+
+        return;
+
+      }
+
+      if (password !== confirmPassword) {
+
+        showToast("Passwords do not match.");
+
+        return;
+
+      }
+
+      if (password.length < 8) {
+
+        showToast("Password must be at least 8 characters.");
+
+        return;
+
+      }
+
+      if (!termsAccepted) {
+
+        showToast("Please accept the Terms of Service.");
+
+        return;
+
+      }
+
+      if (!privacyAccepted) {
+
+        showToast("Please accept the Privacy Policy.");
+
+        return;
+
+      }
+
+      //showToast("✨ Creating account... Redirecting!");
+      //setTimeout(() => {
+      // window.location.href = 'dashboard.html';
+      //}, 1500);
+
+      //showToast("Creating your Aura account...");
+
+      startRegistrationLoading();
+
+      try {
+
+        const { data, error } = await db.auth.signUp({
+
+          email: email,
+
+          password: password,
+
+          options: {
+
+            data: {
+
+              full_name: fullName,
+
+              gender: selectedGender,
+
+              phone: ""
+
+            }
+
+          }
+
+        });
+
+        console.log("Signup result:", data);
+        console.log("Signup error:", error);
+
+        if (error) {
+
+          showToast(error.message);
+
+          console.error(error);
+
+          return;
+
+        }
+
+        const user = data.user;
+        registeredEmail = email;
+
+        const emailBox = document.getElementById("verifyEmail");
+
+        console.log("Email element:", emailBox);
+
+        if (emailBox) {
+          emailBox.textContent = registeredEmail;
+        } else {
+          console.error("verifyEmail element not found");
+        }
+
+
+        if (error) {
+
+          stopRegistrationLoading();
+
+          showToast(error.message);
+
+          console.error(error);
+
+          return;
+
+        }
+
+        console.log("Signup Successful");
+
+        console.log(data);
+
+        // Stop loading animation
+        stopRegistrationLoading();
+
+        // Update email in modal
+        document.getElementById("verifyEmail").textContent = registeredEmail;
+
+        // Show success modal
+        document.getElementById("successModal").classList.add("show");
+
+
+
+      }
+      catch (err) {
+
+        console.error(err);
+
+        stopRegistrationLoading();
+
+        showToast("Something went wrong.");
+
+
+      }
+
+    }
+
+    lucide.createIcons();
+
+
+
+    document.getElementById("openMailBtn").onclick = () => {
+
+      window.open(
+        "https://mail.google.com",
+        "_blank"
+      );
+
+    };
+
+    document.getElementById("gotoLoginBtn").onclick = () => {
+
+      window.location.href = "login.html";
+
+    };
+
+  </script>
+
+</body>
+
+</html>

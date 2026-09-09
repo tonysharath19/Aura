@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AURA — Legal & Terms</title>
+    <meta
+        name="description"
+        content="AURA Legal Terms, wellness disclaimer, AI disclaimer, acceptable use and user responsibilities."
+    >
+
+    <style>
+        :root {
+            --bg: #02050e;
+            --panel: rgba(8, 14, 28, 0.68);
+            --panel-soft: rgba(8, 14, 28, 0.42);
+            --border: rgba(255,255,255,.11);
+            --purple: #a855f7;
+            --purple-glow: rgba(168,85,247,.38);
+            --green: #39ff68;
+            --text: #f8fafc;
+            --muted: #a9b2c5;
+            --max: 980px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            background: var(--bg);
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 15% 10%, rgba(168,85,247,.12), transparent 28%),
+                radial-gradient(circle at 85% 30%, rgba(57,255,104,.06), transparent 24%),
+                linear-gradient(180deg, #030713 0%, #02050e 100%);
+            line-height: 1.7;
+        }
+
+        a {
+            color: #c084fc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #ffffff;
+        }
+
+        .page {
+            width: min(var(--max), calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 80px;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 14px;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 12px 16px;
+            margin-bottom: 34px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: rgba(3, 8, 20, .76);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 18px 45px rgba(0,0,0,.25);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            letter-spacing: .14em;
+            color: white;
+        }
+
+        .brand-orb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--purple);
+            box-shadow: 0 0 18px var(--purple-glow);
+        }
+
+        .back {
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: white;
+            background: rgba(255,255,255,.04);
+        }
+
+        .hero {
+            padding: 42px 30px;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            background: var(--panel);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 24px 70px rgba(0,0,0,.28);
+            margin-bottom: 24px;
+        }
+
+        .eyebrow {
+            margin-bottom: 8px;
+            color: var(--purple);
+            font-size: .76rem;
+            font-weight: 800;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 0 0 10px;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            line-height: 1.05;
+        }
+
+        .updated {
+            margin: 0;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        .notice {
+            margin-top: 24px;
+            padding: 18px;
+            border: 1px solid rgba(57,255,104,.18);
+            border-radius: 16px;
+            background: rgba(57,255,104,.04);
+            color: #dfffe8;
+        }
+
+        .content {
+            display: grid;
+            gap: 18px;
+        }
+
+        section {
+            padding: 28px;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            background: var(--panel-soft);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        h2 {
+            margin: 0 0 12px;
+            font-size: 1.22rem;
+        }
+
+        h3 {
+            margin: 20px 0 8px;
+            font-size: 1rem;
+            color: #e9d5ff;
+        }
+
+        p {
+            margin: 0 0 12px;
+            color: #dce3f0;
+        }
+
+        ul {
+            margin: 10px 0 0;
+            padding-left: 20px;
+            color: #dce3f0;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .warning {
+            border-color: rgba(255, 180, 70, .24);
+            background: rgba(255, 180, 70, .045);
+        }
+
+        .footer {
+            padding-top: 26px;
+            text-align: center;
+            color: var(--muted);
+            font-size: .82rem;
+        }
+
+        @media (max-width: 640px) {
+            .page {
+                width: min(100% - 18px, var(--max));
+                padding-top: 10px;
+            }
+
+            .topbar {
+                top: 8px;
+                margin-bottom: 18px;
+            }
+
+            .hero,
+            section {
+                padding: 21px 18px;
+                border-radius: 18px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="page">
+
+    <header class="topbar">
+        <a href="/index.html" class="brand" aria-label="AURA home">
+            <span class="brand-orb"></span>
+            AURA
+        </a>
+
+        <a href="/index.html" class="back">← Back to AURA</a>
+    </header>
+
+    <main>
+
+        <section class="hero">
+            <div class="eyebrow">AURA LEGAL</div>
+            <h1>Terms & Conditions</h1>
+            <p class="updated">
+                Last updated: 24 August 2026
+            </p>
+
+            <div class="notice">
+                AURA is a digital wellness and health-education platform.
+                AURA does not replace a licensed doctor, qualified healthcare
+                professional, emergency service, therapist, dietitian,
+                pharmacist, or other regulated professional.
+            </div>
+        </section>
+
+        <div class="content">
+
+            <section>
+                <h2>1. About AURA</h2>
+
+                <p>
+                    AURA is an intelligent wellness platform designed to help
+                    users understand their habits, organize wellness routines,
+                    monitor self-reported activities, and receive educational
+                    guidance relating to health, nutrition, fitness,
+                    hydration, sleep, recovery, human biology, reproductive
+                    health, sexual health and related wellness topics.
+                </p>
+
+                <p>
+                    AURA may use artificial intelligence to generate
+                    personalized educational content, recommendations,
+                    explanations, summaries and conversational responses.
+                </p>
+            </section>
+
+            <section class="warning">
+                <h2>2. Medical & Health Disclaimer</h2>
+
+                <p>
+                    AURA provides educational and wellness information only.
+                    Information generated by AURA is not intended to diagnose,
+                    treat, cure, prevent or definitively assess any medical
+                    condition.
+                </p>
+
+                <p>
+                    Do not delay seeking professional medical care because of
+                    information received from AURA.
+                </p>
+
+                <p>
+                    For symptoms that may represent an emergency, seek
+                    appropriate emergency medical assistance immediately.
+                </p>
+            </section>
+
+            <section>
+                <h2>3. AI-Generated Information</h2>
+
+                <p>
+                    AURA may use artificial intelligence systems to generate
+                    responses and recommendations. AI-generated content may
+                    occasionally be incomplete, inaccurate, outdated, or
+                    inappropriate for an individual user's circumstances.
+                </p>
+
+                <p>
+                    Users should independently verify important medical,
+                    pharmaceutical, dietary, exercise or reproductive-health
+                    information with an appropriately qualified professional.
+                </p>
+
+                <h3>Examples of supported educational topics</h3>
+
+                <ul>
+                    <li>Human biology and anatomy</li>
+                    <li>Nutrition and food</li>
+                    <li>Recipes and meal planning</li>
+                    <li>Exercise and fitness</li>
+                    <li>Sleep and recovery</li>
+                    <li>Hydration</li>
+                    <li>First-aid education</li>
+                    <li>General medical education</li>
+                    <li>Human reproduction</li>
+                    <li>Sexual health and sex education</li>
+                    <li>Contraception and fertility education</li>
+                    <li>Menstrual and reproductive health education</li>
+                    <li>General pharmaceutical education</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>4. User Responsibilities</h2>
+
+                <p>
+                    You are responsible for the accuracy of information you
+                    provide to AURA and for making decisions based on your own
+                    circumstances.
+                </p>
+
+                <p>
+                    You should not intentionally submit information belonging
+                    to another person without appropriate authorization.
+                </p>
+
+                <p>
+                    You are responsible for keeping your login credentials
+                    secure and for notifying AURA if you believe your account
+                    has been compromised.
+                </p>
+            </section>
+
+            <section>
+                <h2>5. Wellness Data & Self-Reported Information</h2>
+
+                <p>
+                    AURA may allow users to record information such as
+                    workouts, meals, hydration, sleep, goals, preferences,
+                    body measurements and wellness progress.
+                </p>
+
+                <p>
+                    These records are used to provide the features selected by
+                    the user, including progress tracking, personalization,
+                    gamification, insights and wellness recommendations.
+                </p>
+            </section>
+
+            <section>
+                <h2>6. AURA Points, Streaks & Achievements</h2>
+
+                <p>
+                    AURA may award points, streaks, badges and achievements
+                    according to product rules and completion events.
+                </p>
+
+                <p>
+                    These features are motivational and informational. They
+                    do not represent medical scores, clinical assessments,
+                    guaranteed outcomes, or financial value.
+                </p>
+            </section>
+
+            <section>
+                <h2>7. Sexual Health & Reproductive Education</h2>
+
+                <p>
+                    AURA may provide general educational information about
+                    sexual health, masturbation, reproductive anatomy,
+                    puberty, menstruation, ovulation, fertility,
+                    contraception, pregnancy, sexually transmitted infections,
+                    sexual function and related health topics.
+                </p>
+
+                <p>
+                    Such information is intended for health education and
+                    should not be treated as an individualized diagnosis or
+                    treatment recommendation.
+                </p>
+            </section>
+
+            <section>
+                <h2>8. Pharmaceutical Information</h2>
+
+                <p>
+                    AURA may provide general educational information about
+                    medicines, medication classes, common uses, mechanisms,
+                    precautions, side effects and other pharmaceutical topics.
+                </p>
+
+                <p>
+                    AURA does not prescribe medicines or establish a
+                    personalized medication regimen. Medication decisions
+                    should be discussed with a qualified doctor or pharmacist.
+                </p>
+            </section>
+
+            <section>
+                <h2>9. Intellectual Property</h2>
+
+                <p>
+                    Unless otherwise stated, the AURA name, branding, visual
+                    design, software, interface, original graphics, text,
+                    logos and other platform materials are owned by or
+                    licensed to AURA.
+                </p>
+
+                <p>
+                    You may not copy, reproduce, reverse engineer, redistribute
+                    or commercially exploit protected AURA materials without
+                    appropriate authorization.
+                </p>
+            </section>
+
+            <section>
+                <h2>10. Prohibited Use</h2>
+
+                <p>
+                    You must not use AURA to unlawfully access accounts,
+                    interfere with the service, distribute malicious code,
+                    impersonate another person, abuse the platform, or attempt
+                    to bypass technical or security controls.
+                </p>
+            </section>
+
+            <section>
+                <h2>11. Third-Party Services</h2>
+
+                <p>
+                    AURA may rely on third-party infrastructure and service
+                    providers for functions such as authentication, database
+                    storage, hosting, analytics or AI processing.
+                </p>
+
+                <p>
+                    Availability and performance of third-party services may
+                    affect AURA.
+                </p>
+            </section>
+
+            <section>
+                <h2>12. Availability</h2>
+
+                <p>
+                    AURA is provided on an evolving basis. Features may be
+                    updated, changed, suspended or discontinued in order to
+                    improve security, performance, functionality or product
+                    design.
+                </p>
+            </section>
+
+            <section>
+                <h2>13. Account Suspension or Termination</h2>
+
+                <p>
+                    AURA may restrict or terminate access where necessary to
+                    protect the service, users, security or legal interests of
+                    the platform.
+                </p>
+
+                <p>
+                    Users may request account deletion according to the process
+                    described in the Privacy Policy.
+                </p>
+            </section>
+
+            <section>
+                <h2>14. Limitation of Responsibility</h2>
+
+                <p>
+                    To the maximum extent permitted by applicable law, AURA
+                    should not be relied upon as the sole basis for medical,
+                    emergency, financial, legal or other high-consequence
+                    decisions.
+                </p>
+
+                <p>
+                    Nothing in these Terms is intended to exclude or limit
+                    rights or protections that cannot lawfully be excluded
+                    under applicable law.
+                </p>
+            </section>
+
+            <section>
+                <h2>15. Changes to These Terms</h2>
+
+                <p>
+                    AURA may update these Terms from time to time. The updated
+                    version will be published on this page with a revised
+                    "Last updated" date.
+                </p>
+            </section>
+
+            <section>
+                <h2>16. Governing Law</h2>
+
+                <p>
+                    These Terms are intended to be governed by the laws of
+                    India, subject to applicable mandatory consumer and
+                    statutory protections.
+                </p>
+            </section>
+
+            <section>
+                <h2>17. Contact</h2>
+
+                <p>
+                    For legal, account or service questions, contact:
+                </p>
+
+                <p>
+                    <strong>[AURA LEGAL / COMPANY NAME]</strong><br>
+                    Email:
+                    <a href="mailto:[LEGAL EMAIL]">[LEGAL EMAIL]</a><br>
+                    Address:
+                    [BUSINESS ADDRESS]
+                </p>
+            </section>
+
+        </div>
+
+        <footer class="footer">
+            © 2026 AURA. All rights reserved.
+            ·
+            <a href="/privacy.html">Privacy Policy</a>
+        </footer>
+
+    </main>
+</div>
+</body>
+</html>
