@@ -2035,6 +2035,91 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
     .aura-chat-backdrop{z-index:190!important;}
     body.aura-chat-open .mobile-aura-orb{display:none!important;}
 }
+
+/* ============================================================
+   AURA CHAT — FINAL INTERACTION / STACKING FIX
+   The composer and send control get their own interaction layer.
+   The floating Ask AURA launcher is always below the drawer and
+   cannot intercept taps/clicks intended for the send button.
+   ============================================================ */
+.aura-chat-backdrop{
+  z-index:9990!important;
+}
+.aura-chat-drawer{
+  z-index:10000!important;
+  isolation:isolate!important;
+  pointer-events:none;
+}
+.aura-chat-drawer.open{
+  pointer-events:auto!important;
+}
+.aura-chat-drawer .chat-header,
+.aura-chat-drawer .chat-suggestions,
+.aura-chat-drawer .chat-messages,
+.aura-chat-drawer .chat-composer{
+  position:relative;
+  z-index:1;
+}
+.aura-chat-drawer .chat-composer{
+  flex:0 0 auto!important;
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 48px!important;
+  align-items:center!important;
+  gap:.6rem!important;
+  position:relative!important;
+  z-index:20!important;
+  background:#07101d!important;
+  pointer-events:auto!important;
+}
+.aura-chat-drawer .chat-composer textarea{
+  min-width:0!important;
+  min-height:44px!important;
+  position:relative!important;
+  z-index:21!important;
+  pointer-events:auto!important;
+  resize:none!important;
+}
+.aura-chat-drawer .aura-chat-send-btn{
+  width:48px!important;
+  height:44px!important;
+  min-width:48px!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:0!important;
+  position:relative!important;
+  z-index:22!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;
+}
+.aura-chat-drawer .aura-chat-send-btn i{
+  pointer-events:none!important;
+}
+.aura-floating-widget{
+  z-index:100!important;
+}
+body.aura-chat-open .aura-floating-widget{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+@media(max-width:768px){
+  .aura-chat-drawer{
+    width:100vw!important;
+    max-width:100vw!important;
+    right:0!important;
+    top:0!important;
+    bottom:0!important;
+  }
+  .aura-chat-drawer .chat-composer{
+    grid-template-columns:minmax(0,1fr) 48px!important;
+    padding:.7rem!important;
+    padding-bottom:calc(.7rem + env(safe-area-inset-bottom))!important;
+  }
+}
 </style>
 
 </head>
@@ -2237,9 +2322,9 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
     <div class="aura-chat-backdrop" id="auraChatBackdrop" onclick="closeAuraChat()"></div>
     <aside class="aura-chat-drawer" id="auraChatDrawer" aria-label="Ask AURA chatbot">
         <div class="chat-header"><div><strong>AURA</strong><span id="auraChatStatus">Your wellness copilot</span></div><button class="icon-btn" onclick="closeAuraChat()" aria-label="Close chat"><i data-lucide="x"></i></button></div>
-        <div class="chat-suggestions"><button onclick="sendAuraSuggestion('What should I focus on today?')">Focus today</button><button onclick="sendAuraSuggestion('Why did AURA choose this workout?')">Why this workout?</button><button onclick="sendAuraSuggestion('What should I eat today?')">What should I eat?</button><button onclick="sendAuraSuggestion('How can I improve my sleep?')">Improve sleep</button><button>Ask Me Anything Medical</button></div>
+        <div class="chat-suggestions"><button onclick="sendAuraSuggestion('What should I focus on today?')">Focus today</button><button onclick="sendAuraSuggestion('Why did AURA choose this workout?')">Why this workout?</button><button onclick="sendAuraSuggestion('What should I eat today?')">What should I eat?</button><button onclick="sendAuraSuggestion('How can I improve my sleep?')">Improve sleep</button></div>
         <div id="auraChatMessages" class="chat-messages" aria-live="polite"><div class="chat-bubble aura">Hi. I'm AURA. Ask me about your plan, progress, recovery or today's choices.</div></div>
-        <div class="chat-composer"><textarea id="auraChatInput" rows="2" placeholder="Ask AURA anything..."></textarea><button class="btn-primary-glow" onclick="sendAuraChat()"><i data-lucide="send"></i></button></div>
+        <div class="chat-composer" id="auraChatComposer"><textarea id="auraChatInput" rows="2" placeholder="Ask AURA anything..." autocomplete="off"></textarea><button type="button" class="btn-primary-glow aura-chat-send-btn" id="auraChatSendBtn" aria-label="Send message" onclick="sendAuraChat(event)"><i data-lucide="send"></i></button></div>
     </aside>
 
     <!-- Aura Configuration -->
@@ -3643,7 +3728,9 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
         }
 
 
-        async function sendAuraChat(){
+        async function sendAuraChat(event){
+            event?.preventDefault?.();
+            event?.stopPropagation?.();
             if(auraUI.chatBusy)return;
 
             const input=document.getElementById('auraChatInput');
@@ -3752,7 +3839,7 @@ ${q}`;
         }
 
         window.addEventListener('beforeunload',()=>{try{saveAuraChatHistory()}catch{}});
-        document.getElementById('auraChatInput')?.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAuraChat(); } });
+        document.getElementById('auraChatInput')?.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); e.stopPropagation(); sendAuraChat(e); } });
 
         /* ============================================================
            LOAD EXISTING USER DATA
