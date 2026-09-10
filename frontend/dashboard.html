@@ -1778,6 +1778,244 @@ body.aura-chat-is-open .mobile-aura-orb{
     }
 
 </style>
+
+<style id="aura-mobile-section-polish">
+/* ============================================================
+   AURA MOBILE — SECTION SIZING / CROPPING / SPACING POLISH
+   Keeps every section naturally sized so its complete contents
+   remain scrollable and never feel trapped inside the viewport.
+   ============================================================ */
+@media (max-width:768px){
+  html,body{
+    overflow:hidden!important;
+    height:100%;
+    min-height:100%;
+  }
+
+  .app-shell{
+    height:100dvh!important;
+    min-height:100dvh!important;
+    overflow:hidden!important;
+  }
+
+  .main-wrapper{
+    height:100dvh!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+
+  .content-viewport{
+    height:calc(100dvh - 64px)!important;
+    min-height:0!important;
+    flex:1 1 auto!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    padding:.8rem .72rem calc(5.25rem + env(safe-area-inset-bottom))!important;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* Sections must grow with their content instead of behaving like
+     fixed-height screens. */
+  .content-section{
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    flex:none!important;
+    overflow:visible!important;
+    gap:.85rem!important;
+    padding-top:.25rem!important;
+    padding-bottom:.5rem!important;
+    justify-content:flex-start!important;
+  }
+
+  /* Consistent mobile card sizing */
+  .glass-card{
+    width:100%!important;
+    max-width:100%!important;
+    padding:.9rem!important;
+    border-radius:18px!important;
+  }
+
+  .section-title-lg{
+    font-size:1.42rem!important;
+    line-height:1.15!important;
+  }
+
+  .section-sub{
+    font-size:.76rem!important;
+    line-height:1.4!important;
+  }
+
+  .section-hero-row{
+    width:100%!important;
+    gap:.7rem!important;
+    padding:.15rem 0!important;
+  }
+
+  /* Dashboard cards: compact but breathable */
+  #sectionDashboard .plan-card{
+    min-height:154px!important;
+    padding:.8rem .6rem!important;
+    border-radius:14px!important;
+  }
+
+  #sectionDashboard .plan-card-tag i{
+    width:42px!important;
+    height:42px!important;
+  }
+
+  #sectionDashboard .progress-rings-grid{
+    gap:.65rem!important;
+  }
+
+  #sectionDashboard .ring-card{
+    min-height:128px!important;
+    padding:.72rem .5rem!important;
+  }
+
+  #sectionDashboard .ring-container{
+    width:58px!important;
+    height:58px!important;
+  }
+
+  /* Workout / nutrition rows: no fixed or clipped heights */
+  #sectionWorkout .exercise-row,
+  #sectionNutrition .meal-row{
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+  }
+
+  #sectionWorkout .exercise-summary,
+  #sectionNutrition .meal-summary{
+    min-height:0!important;
+  }
+
+  #sectionWorkout .exercise-details,
+  #sectionNutrition .meal-details{
+    min-height:0!important;
+  }
+
+  #sectionWorkout .exercise-item-aura,
+  #sectionNutrition .ask-aura-inline{
+    min-height:0!important;
+  }
+
+  /* Hydration: reduce the oversized hero and let the card flow naturally. */
+  #sectionHydration .hydration-main{
+    min-height:0!important;
+    height:auto!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    gap:1rem!important;
+    padding:1rem!important;
+  }
+
+  #sectionHydration .hydration-ring{
+    width:158px!important;
+    height:158px!important;
+    flex:0 0 158px!important;
+  }
+
+  #sectionHydration .hydration-center strong{
+    font-size:1.35rem!important;
+  }
+
+  #sectionHydration .hydration-entry-panel{
+    width:100%!important;
+    max-width:360px!important;
+  }
+
+  #sectionHydration .quick-grid{
+    gap:.55rem!important;
+  }
+
+  /* Sleep: remove the oversized 45vh hero treatment. */
+  #sectionSleep .glass-card.sleep-hero{
+    min-height:0!important;
+    height:auto!important;
+    padding:1rem!important;
+  }
+
+  #sectionSleep .sleep-hero{
+    gap:1rem!important;
+    justify-content:flex-start!important;
+  }
+
+  #sectionSleep .sleep-hero .metric-xl{
+    font-size:1.45rem!important;
+  }
+
+  /* Progress / achievements / insights should end naturally. */
+  #sectionProgress .glass-card,
+  #sectionProgress .event-card{
+    min-height:0!important;
+  }
+
+  #sectionProgress .timeline-row{
+    grid-template-columns:78px minmax(0,1fr) auto!important;
+    gap:.55rem!important;
+    padding:.68rem .2rem!important;
+  }
+
+  #sectionProgress .journey-days{
+    gap:.42rem!important;
+  }
+
+  #sectionAchievements{
+    min-height:0!important;
+    justify-content:flex-start!important;
+  }
+
+  #sectionAchievements .badge-grid-premium{
+    gap:.7rem!important;
+  }
+
+  #sectionAchievements .badge-card{
+    min-height:190px!important;
+    padding:1rem .7rem!important;
+  }
+
+  #sectionAchievements .badge-art{
+    width:68px!important;
+    height:68px!important;
+  }
+
+  #sectionInsights{
+    min-height:0!important;
+  }
+
+  #sectionInsights .insight-chart{
+    height:150px!important;
+  }
+
+  /* The floating Ask AURA control should never sit across the middle
+     of content. Put it safely at the bottom with breathing room. */
+  .aura-floating-widget{
+    right:12px!important;
+    left:auto!important;
+    top:auto!important;
+    bottom:calc(12px + env(safe-area-inset-bottom))!important;
+    transform:none!important;
+    z-index:1000!important;
+  }
+
+  .aura-hud-btn{
+    min-height:42px!important;
+    padding:9px 15px!important;
+    gap:9px!important;
+    font-size:11px!important;
+    letter-spacing:1.5px!important;
+  }
+
+  /* Keep the bottom floating control from hiding the final card/button. */
+  .content-viewport{
+    scroll-padding-bottom:5.25rem!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
