@@ -1599,6 +1599,429 @@ body{overflow-x:hidden;}
   }
 </style>
 
+
+<style id="mobile-fullscreen-layout-fix">
+/* ============================================================
+   MOBILE-ONLY FULL-SCREEN FIT FIX
+   Scope: index.html only, max-width: 767px.
+   Desktop/tablet layouts above this breakpoint are untouched.
+   ============================================================ */
+@media (max-width: 767px) {
+  html,
+  body {
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Every landing-page section occupies exactly one stable mobile viewport. */
+  #sec1,
+  #sec2,
+  #sec3,
+  #sec4 {
+    width: 100% !important;
+    height: 100svh !important;
+    min-height: 100svh !important;
+    max-height: 100svh !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    flex: 0 0 100svh !important;
+    overflow: hidden !important;
+    scroll-snap-align: start !important;
+    scroll-snap-stop: always !important;
+  }
+
+  /* ---------- SECTION 2: all six number cards in one screen ---------- */
+  #sec2.analytics-section {
+    justify-content: flex-start !important;
+    align-items: center !important;
+    padding-top: max(5.15rem, calc(env(safe-area-inset-top) + 4.35rem)) !important;
+    padding-right: 1rem !important;
+    padding-bottom: max(.65rem, env(safe-area-inset-bottom)) !important;
+    padding-left: 1rem !important;
+    gap: 0 !important;
+  }
+
+  #sec2.analytics-section .section-progress {
+    top: max(.9rem, env(safe-area-inset-top)) !important;
+  }
+
+  #sec2.analytics-section .section-header {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    align-self: center !important;
+  }
+
+  #sec2.analytics-section .section-tag {
+    font-size: clamp(.62rem, 2.35vw, .72rem) !important;
+    line-height: 1.1 !important;
+    letter-spacing: .13em !important;
+    margin: 0 0 .32rem !important;
+  }
+
+  #sec2.analytics-section .section-heading {
+    font-size: clamp(1.72rem, 7.8vw, 2.18rem) !important;
+    line-height: 1.04 !important;
+    margin: 0 0 .55rem !important;
+  }
+
+  #sec2.analytics-section .section-desc {
+    max-width: 96% !important;
+    margin: 0 auto !important;
+    font-size: clamp(.72rem, 3.05vw, .82rem) !important;
+    line-height: 1.36 !important;
+  }
+
+  #sec2.analytics-section .analytics-grid {
+    width: 100% !important;
+    height: clamp(270px, 42svh, 352px) !important;
+    min-height: 270px !important;
+    max-height: 352px !important;
+    margin: .68rem 0 0 !important;
+    padding: 0 !important;
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-rows: repeat(3, minmax(0, 1fr)) !important;
+    gap: clamp(.38rem, 1.05svh, .62rem) !important;
+    align-items: stretch !important;
+    justify-items: stretch !important;
+    align-self: stretch !important;
+    flex: 0 0 auto !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: .62rem .44rem !important;
+    border-radius: 17px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: .18rem !important;
+    overflow: hidden !important;
+  }
+
+  #sec2.analytics-section .stat-title {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    font-size: clamp(.59rem, 2.4vw, .73rem) !important;
+    line-height: 1.15 !important;
+    letter-spacing: .045em !important;
+    text-align: center !important;
+    white-space: normal !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    width: 100% !important;
+    margin: 0 !important;
+    font-size: clamp(1rem, 5.1vw, 1.33rem) !important;
+    line-height: 1 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+  }
+
+  #sec2.analytics-section .stat-sub {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    font-size: clamp(.48rem, 1.95vw, .60rem) !important;
+    line-height: 1.22 !important;
+    text-align: center !important;
+    display: block !important;
+  }
+
+  #sec2.analytics-section .trust-banner {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: .45rem 0 0 !important;
+    padding: .48rem .5rem !important;
+    font-size: clamp(.48rem, 1.8vw, .58rem) !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+    align-self: center !important;
+    flex: 0 0 auto !important;
+  }
+
+  #sec2.analytics-section .trust-banner > div,
+  #sec2.analytics-section .trust-banner span {
+    text-align: center !important;
+  }
+
+  /* ---------- SECTION 3: one complete screen, no hidden footprint ---------- */
+  #sec3.health-section {
+    justify-content: flex-start !important;
+    padding-top: max(5.15rem, calc(env(safe-area-inset-top) + 4.35rem)) !important;
+    padding-right: 1rem !important;
+    padding-bottom: max(.7rem, env(safe-area-inset-bottom)) !important;
+    padding-left: 1rem !important;
+    gap: 0 !important;
+  }
+
+  #sec3.health-section .section-progress {
+    top: max(.9rem, env(safe-area-inset-top)) !important;
+  }
+
+  #sec3.health-section .health-split-container {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+  }
+
+  #sec3.health-section .health-left-col {
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: .2rem 0 0 !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: center !important;
+    flex: 0 0 auto !important;
+  }
+
+  #sec3.health-section .health-left-col .section-tag {
+    font-size: clamp(.62rem, 2.35vw, .72rem) !important;
+    line-height: 1.1 !important;
+    margin-bottom: .35rem !important;
+  }
+
+  #sec3.health-section .health-left-col .section-heading {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 0 .55rem !important;
+    font-size: clamp(1.72rem, 8vw, 2.25rem) !important;
+    line-height: 1.06 !important;
+    text-align: center !important;
+  }
+
+  #sec3.health-section .health-left-col .section-desc {
+    width: 100% !important;
+    max-width: 94% !important;
+    margin: 0 auto !important;
+    font-size: clamp(.72rem, 3vw, .82rem) !important;
+    line-height: 1.42 !important;
+    text-align: center !important;
+  }
+
+  #sec3.health-section .health-right-col {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: auto 0 0 !important;
+    padding: 0 0 max(.2rem, env(safe-area-inset-bottom)) !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    flex: 0 0 auto !important;
+  }
+
+  #sec3.health-section .health-cta-box {
+    width: 100% !important;
+    max-width: 620px !important;
+    margin: 0 !important;
+    padding: clamp(1rem, 2.8svh, 1.45rem) 1rem clamp(.9rem, 2.4svh, 1.25rem) !important;
+    border-radius: 24px !important;
+    text-align: center !important;
+  }
+
+  #sec3.health-section .health-cta-box h3 {
+    margin-bottom: .45rem !important;
+    font-size: clamp(1.08rem, 5.4vw, 1.3rem) !important;
+    line-height: 1.15 !important;
+  }
+
+  #sec3.health-section .health-cta-box .section-desc {
+    max-width: 100% !important;
+    margin: 0 auto .7rem !important;
+    font-size: clamp(.68rem, 2.8vw, .78rem) !important;
+    line-height: 1.4 !important;
+  }
+
+  #sec3.health-section .btn-cta {
+    margin-top: .2rem !important;
+    padding: .68rem 1.25rem !important;
+    font-size: .82rem !important;
+  }
+
+  /* The carousel is already visually hidden in the existing mobile pass.
+     Keep its footprint at zero so it can never create a blank region. */
+  #sec3.health-section .carousel-stage,
+  #sec3.health-section .carousel-nav {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* ---------- SECTION 4: footer is the fourth full-screen section ---------- */
+  #sec4.footer-flow.footer-section {
+    width: 100% !important;
+    height: 100svh !important;
+    min-height: 100svh !important;
+    max-height: 100svh !important;
+    margin: 0 !important;
+    padding-top: max(.65rem, env(safe-area-inset-top)) !important;
+    padding-right: 1rem !important;
+    padding-bottom: max(.65rem, env(safe-area-inset-bottom)) !important;
+    padding-left: 1rem !important;
+    display: flex !important;
+    align-items: stretch !important;
+    justify-content: stretch !important;
+    overflow: hidden !important;
+  }
+
+  #sec4.footer-section .footer {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+    padding: clamp(.8rem, 2.3svh, 1.15rem) clamp(.8rem, 4vw, 1.1rem) clamp(.7rem, 2svh, 1rem) !important;
+    border-radius: 26px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    overflow: hidden !important;
+  }
+
+  #sec4.footer-section .footer-grid {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: clamp(.42rem, 1.15svh, .7rem) !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+  }
+
+  #sec4.footer-section .footer-brand {
+    min-width: 0 !important;
+  }
+
+  #sec4.footer-section .footer-brand p {
+    max-width: 100% !important;
+    margin-top: .45rem !important;
+    font-size: clamp(.67rem, 2.45vw, .76rem) !important;
+    line-height: 1.35 !important;
+  }
+
+  #sec4.footer-section .footer-col h5,
+  #sec4.footer-section .footer-contact h5 {
+    margin-bottom: .38rem !important;
+    font-size: clamp(.60rem, 2.1vw, .68rem) !important;
+    line-height: 1.1 !important;
+  }
+
+  #sec4.footer-section .footer-col ul {
+    gap: .34rem !important;
+  }
+
+  #sec4.footer-section .footer-col a,
+  #sec4.footer-section .footer-contact a,
+  #sec4.footer-section .footer-contact .contact-value {
+    font-size: clamp(.65rem, 2.25vw, .73rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  #sec4.footer-section .footer-contact {
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: .3rem !important;
+  }
+
+  #sec4.footer-section .footer-contact .contact-row {
+    gap: .35rem !important;
+    line-height: 1.3 !important;
+  }
+
+  #sec4.footer-section .footer-bottom {
+    width: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-top: .55rem !important;
+    gap: .42rem !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    font-size: clamp(.56rem, 1.95vw, .64rem) !important;
+    line-height: 1.25 !important;
+    flex: 0 0 auto !important;
+  }
+
+  #sec4.footer-section .footer-bottom > div {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 380px) {
+  /* Extra-small phones: preserve the same one-screen geometry without overlap. */
+  #sec2.analytics-section {
+    padding-right: .75rem !important;
+    padding-left: .75rem !important;
+  }
+
+  #sec2.analytics-section .analytics-grid {
+    height: clamp(256px, 40svh, 330px) !important;
+    min-height: 256px !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    padding: .5rem .32rem !important;
+  }
+
+  #sec2.analytics-section .stat-title {
+    font-size: .56rem !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    font-size: 1rem !important;
+  }
+
+  #sec2.analytics-section .stat-sub {
+    font-size: .45rem !important;
+  }
+
+  #sec3.health-section {
+    padding-right: .75rem !important;
+    padding-left: .75rem !important;
+  }
+
+  #sec3.health-section .health-cta-box {
+    padding-right: .8rem !important;
+    padding-left: .8rem !important;
+  }
+
+  #sec4.footer-flow.footer-section {
+    padding-right: .75rem !important;
+    padding-left: .75rem !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2332,4 +2755,3 @@ body{overflow-x:hidden;}
   </script>
 </body>
 </html>
-
