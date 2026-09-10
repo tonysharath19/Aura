@@ -2020,6 +2020,21 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
 @media(max-width:768px){
   body.aura-ready .aura-floating-widget{right:12px!important;left:auto!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;transform:none!important}
 }
+
+
+/* AURA V23 — floating Ask AURA must never sit above the chat drawer or page controls. */
+@media (max-width:768px){
+    .mobile-aura-orb{
+        top:auto!important;
+        bottom:calc(16px + env(safe-area-inset-bottom))!important;
+        right:14px!important;
+        transform:none!important;
+        z-index:70!important;
+    }
+    .aura-chat-drawer{z-index:200!important;}
+    .aura-chat-backdrop{z-index:190!important;}
+    body.aura-chat-open .mobile-aura-orb{display:none!important;}
+}
 </style>
 
 </head>
@@ -2222,7 +2237,7 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
     <div class="aura-chat-backdrop" id="auraChatBackdrop" onclick="closeAuraChat()"></div>
     <aside class="aura-chat-drawer" id="auraChatDrawer" aria-label="Ask AURA chatbot">
         <div class="chat-header"><div><strong>AURA</strong><span id="auraChatStatus">Your wellness copilot</span></div><button class="icon-btn" onclick="closeAuraChat()" aria-label="Close chat"><i data-lucide="x"></i></button></div>
-        <div class="chat-suggestions"><button onclick="sendAuraSuggestion('What should I focus on today?')">Focus today</button><button onclick="sendAuraSuggestion('Why did AURA choose this workout?')">Why this workout?</button><button onclick="sendAuraSuggestion('What should I eat today?')">What should I eat?</button><button onclick="sendAuraSuggestion('How can I improve my sleep?')">Improve sleep</button></div>
+        <div class="chat-suggestions"><button onclick="sendAuraSuggestion('What should I focus on today?')">Focus today</button><button onclick="sendAuraSuggestion('Why did AURA choose this workout?')">Why this workout?</button><button onclick="sendAuraSuggestion('What should I eat today?')">What should I eat?</button><button onclick="sendAuraSuggestion('How can I improve my sleep?')">Improve sleep</button><button>Ask Me Anything Medical</button></div>
         <div id="auraChatMessages" class="chat-messages" aria-live="polite"><div class="chat-bubble aura">Hi. I'm AURA. Ask me about your plan, progress, recovery or today's choices.</div></div>
         <div class="chat-composer"><textarea id="auraChatInput" rows="2" placeholder="Ask AURA anything..."></textarea><button class="btn-primary-glow" onclick="sendAuraChat()"><i data-lucide="send"></i></button></div>
     </aside>
@@ -2652,8 +2667,12 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
                 if(today===auraUI.lastDayKey)return;
                 auraUI.lastDayKey=today;
                 dashboardState.ui_diet_date=today;
-                // Preserve an active overnight sleep session across midnight.
-                if(auraUI.sleepStage!=='sleeping'){
+
+                /* Midnight starts a new calendar day for daily goals, but an
+                   overnight sleep session is still the SAME session. Never
+                   reset its stage, ID or bedtime until the user wakes up. */
+                const overnightSleepActive = auraUI.sleepStage==='sleeping' && !!auraUI.activeSleepId;
+                if(!overnightSleepActive){
                     auraUI.sleepStage='idle';
                     auraUI.activeSleepId=null;
                     auraUI.finishedSleep=null;
@@ -2668,6 +2687,10 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
                     loadPersistedExerciseState();
                     loadPersistedMealState();
                     renderAURADashboard();
+                    if(overnightSleepActive){
+                        auraUI.sleepStage='sleeping';
+                        startSleepTimer();
+                    }
                 }catch(e){console.warn('AURA day rollover refresh:',e);}
             },15000);
         }
@@ -3232,7 +3255,19 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
 
         function isSleepRewardedToday(){const today=getTodayISO();return (dashboardState.aura_transactions||[]).some(tx=>tx.source==='sleep'&&String(tx.transaction_date)===today)}
         function sleepElapsedText(){if(!auraUI.sleepBedtime)return '00:00:00';const start=new Date(auraUI.sleepBedtime).getTime(),elapsed=Math.max(0,Date.now()-start),h=Math.floor(elapsed/3600000),m=Math.floor((elapsed%3600000)/60000),sec=Math.floor((elapsed%60000)/1000);return [h,m,sec].map(v=>String(v).padStart(2,'0')).join(':')}
-        function startSleepTimer(){clearInterval(auraUI.sleepTimerId);auraUI.sleepTimerId=setInterval(()=>{if(auraUI.sleepStage!=='sleeping'){clearInterval(auraUI.sleepTimerId);auraUI.sleepTimerId=null;return}const status=document.getElementById('sleepStatus');if(status)status.textContent=`Sleeping • ${sleepElapsedText()}`},1000)}
+        function startSleepTimer(){
+            if(auraUI.sleepStage!=='sleeping')return;
+            if(auraUI.sleepTimerId){
+                const status=document.getElementById('sleepStatus');
+                if(status)status.textContent=`Sleeping • ${sleepElapsedText()}`;
+                return;
+            }
+            auraUI.sleepTimerId=setInterval(()=>{
+                if(auraUI.sleepStage!=='sleeping'){clearInterval(auraUI.sleepTimerId);auraUI.sleepTimerId=null;return}
+                const status=document.getElementById('sleepStatus');
+                if(status)status.textContent=`Sleeping • ${sleepElapsedText()}`;
+            },1000);
+        }
         function stopSleepTimer(){clearInterval(auraUI.sleepTimerId);auraUI.sleepTimerId=null}
         function getBaselineSleepHours(){
             const h=Number(dashboardState.lifestyle_profile?.sleep_hours||0);
@@ -3446,8 +3481,8 @@ body.aura-ready .aura-floating-widget{display:block!important;visibility:visible
         function chatStorageKey(){return `aura_chat_history_${dashboardState.user?.id||'guest'}`}
         function saveAuraChatHistory(){const rows=[...document.querySelectorAll('#auraChatMessages .chat-bubble')].filter(b=>!b.classList.contains('chat-thinking')&&!String(b.textContent||'').startsWith('AURA is thinking')).map(b=>({role:b.classList.contains('user')?'user':'aura',text:b.textContent})).slice(-40);try{localStorage.setItem(chatStorageKey(),JSON.stringify(rows))}catch{}}
         function loadAuraChatHistory(){const c=document.getElementById('auraChatMessages');if(!c)return;try{const rows=JSON.parse(localStorage.getItem(chatStorageKey())||'[]');if(!Array.isArray(rows)||!rows.length)return;c.innerHTML='';rows.forEach(r=>appendChat(r.role,r.text,false))}catch{}}
-        function openAuraChat(){document.getElementById('auraChatDrawer').classList.add('open');document.getElementById('auraChatBackdrop').classList.add('open');if(!auraUI.chatBusy)loadAuraChatHistory();document.getElementById('auraChatInput')?.focus()}
-        function closeAuraChat(){document.getElementById('auraChatDrawer').classList.remove('open');document.getElementById('auraChatBackdrop').classList.remove('open');if(!auraUI.chatBusy)saveAuraChatHistory()}
+        function openAuraChat(){document.body.classList.add('aura-chat-open');document.getElementById('auraChatDrawer').classList.add('open');document.getElementById('auraChatBackdrop').classList.add('open');if(!auraUI.chatBusy)loadAuraChatHistory();document.getElementById('auraChatInput')?.focus()}
+        function closeAuraChat(){document.body.classList.remove('aura-chat-open');document.getElementById('auraChatDrawer').classList.remove('open');document.getElementById('auraChatBackdrop').classList.remove('open');if(!auraUI.chatBusy)saveAuraChatHistory()}
         function formatAuraChatText(raw){let s=String(raw??'').replace(/\r\n/g,'\n').trim();s=s.replace(/```(?:text|markdown)?/gi,'').replace(/```/g,'');s=s.replace(/\*\*(.*?)\*\*/g,'$1').replace(/__(.*?)__/g,'$1');s=s.replace(/^#{1,6}\s*/gm,'').replace(/^\s*[-•]\s*/gm,'• ');s=s.replace(/\n{3,}/g,'\n\n').replace(/[ \t]+\n/g,'\n');return s.trim()}
         function appendChat(role,text,persist=true){const c=document.getElementById('auraChatMessages'),d=document.createElement('div');d.className=`chat-bubble ${role}`;d.textContent=role==='aura'?formatAuraChatText(text):String(text??'');c.appendChild(d);c.scrollTop=c.scrollHeight;if(persist)saveAuraChatHistory();return d}
         function askAuraAboutExercise(name,prompt){
@@ -4147,6 +4182,7 @@ ${q}`;
                 .eq("user_id", userId)
                 .eq("workout_plan_id", workoutPlanId)
                 .eq("workout_date", todayString)
+                .limit(1)
                 .maybeSingle();
 
             if (error) throw error;
@@ -5281,6 +5317,21 @@ Rules: generate a complete personalized workout for TODAY with multiple exercise
             const mapped = mapAuraAIDecision_19F(decision);
             const workout = mapped.workout;
             const diet = mapped.diet;
+            const userId = dashboardState.user.id;
+            const workoutPlanId = dashboardState.workout_plan?.id;
+            const dietPlanId = dashboardState.diet_plan?.id;
+
+            /* Resolve one exact plan row first. This prevents PostgREST 406
+               when historical/duplicate rows exist for the same calendar date. */
+            let workoutRowQuery = db.from("workout_days")
+                .select("id")
+                .eq("user_id", userId)
+                .eq("workout_date", date);
+            if (workoutPlanId) workoutRowQuery = workoutRowQuery.eq("workout_plan_id", workoutPlanId);
+            const { data: workoutRows, error: workoutLookupError } = await workoutRowQuery.limit(1);
+            if (workoutLookupError) throw workoutLookupError;
+            const workoutId = workoutRows?.[0]?.id;
+            if (!workoutId) throw new Error(`Workout day not found for ${date}.`);
 
             const { data: w, error: we } = await db.from("workout_days").update({
                 title: workout.title,
@@ -5288,11 +5339,21 @@ Rules: generate a complete personalized workout for TODAY with multiple exercise
                 workout_type: workout.focus || "AI",
                 duration_minutes: workout.duration_minutes,
                 exercises: workout.exercises
-            }).eq("user_id", dashboardState.user.id).eq("workout_date", date).select().single();
+            }).eq("id", workoutId).eq("user_id", userId).select().maybeSingle();
             if (we) throw we;
 
             const meals = diet.meals || [];
-            const meal = (name) => meals.find(x => x.meal?.toLowerCase() === name) || null;
+            const meal = (name) => meals.find(x => String(x.meal || '').toLowerCase() === name) || null;
+
+            let dietRowQuery = db.from("diet_days")
+                .select("id")
+                .eq("user_id", userId)
+                .eq("diet_date", date);
+            if (dietPlanId) dietRowQuery = dietRowQuery.eq("diet_plan_id", dietPlanId);
+            const { data: dietRows, error: dietLookupError } = await dietRowQuery.limit(1);
+            if (dietLookupError) throw dietLookupError;
+            const dietId = dietRows?.[0]?.id;
+            if (!dietId) throw new Error(`Diet day not found for ${date}.`);
 
             const { data: d, error: de } = await db.from("diet_days").update({
                 breakfast: meal("breakfast"),
@@ -5301,7 +5362,7 @@ Rules: generate a complete personalized workout for TODAY with multiple exercise
                 evening: meal("evening"),
                 dinner: meal("dinner"),
                 notes: `AI plan: ${diet.daily_calories} kcal, ${diet.protein_g}g protein`
-            }).eq("user_id", dashboardState.user.id).eq("diet_date", date).select().single();
+            }).eq("id", dietId).eq("user_id", userId).select().maybeSingle();
             if (de) throw de;
 
             return { workout: w, diet: d, water: mapped.water, sleep: mapped.sleep };
