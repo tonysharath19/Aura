@@ -2014,6 +2014,12 @@ body.aura-chat-is-open .mobile-aura-orb{
     scroll-padding-bottom:5.25rem!important;
   }
 }
+/* FINAL LOAD VISIBILITY FIX — Ask AURA must not appear during dashboard loading */
+.aura-floating-widget{display:none!important;visibility:hidden!important;pointer-events:none!important}
+body.aura-ready .aura-floating-widget{display:block!important;visibility:visible!important;pointer-events:auto!important}
+@media(max-width:768px){
+  body.aura-ready .aura-floating-widget{right:12px!important;left:auto!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;transform:none!important}
+}
 </style>
 
 </head>
@@ -2190,7 +2196,7 @@ body.aura-chat-is-open .mobile-aura-orb{
                     <div class="glass-card progress-total"><div><span class="section-sub">Total AURA</span><strong id="progressAuraTotal">0 AURA</strong></div><div><span class="section-sub">Current streak</span><strong id="progressCurrentStreak">0 days</strong></div><div><span class="section-sub">Best streak</span><strong id="progressBestStreak">0 days</strong></div></div>
                     <div class="event-grid" id="eventProgressContainer"></div>
                     <div class="glass-card"><div class="card-header-row"><div><h3 class="subheading">AURA Collected</h3><p class="section-sub">Your earned points, event by event.</p></div></div><div id="auraTimeline" class="timeline-list"></div></div>
-                    <div class="glass-card"><div class="card-header-row"><div><h3 class="subheading">25-Day Journey</h3><p class="section-sub">Workout + nutrition plan progress.</p></div></div><div id="journeyDays" class="journey-days"></div></div>
+                    <div class="glass-card journey-card"><div class="card-header-row"><div><h3 class="subheading" id="journeyTitle">Journey</h3><p class="section-sub" id="journeySubtitle">Workout + nutrition plan progress.</p></div><div class="journey-nav" id="journeyNav" hidden><button type="button" class="icon-btn" id="journeyPrev" onclick="navigateJourneyPage(-1)" aria-label="Previous journey days"><i data-lucide="chevron-left"></i></button><span id="journeyPageLabel">1 / 1</span><button type="button" class="icon-btn" id="journeyNext" onclick="navigateJourneyPage(1)" aria-label="Next journey days"><i data-lucide="chevron-right"></i></button></div></div><div id="journeyDays" class="journey-days"></div></div>
                 </section>
 
                 <section id="sectionAchievements" class="content-section"><div class="section-hero-row"><div><h2 class="section-title-lg">Your Achievements</h2><p class="section-sub">Custom AURA awards built around your journey.</p></div></div><div class="badge-grid badge-grid-premium" id="achievementsBadgeContainer"></div></section>
@@ -2266,7 +2272,7 @@ body.aura-chat-is-open .mobile-aura-orb{
             activeSleepId:null,
             finishedSleep:null,
             chatBusy:false,chatPending:false,chatContext:null,
-            actionBusy:{workout:false,diet:false,water:false,sleep:false},aiAccessToken:null,sleepTimerId:null,sleepBedtime:null,lastDayKey:null,dayWatcherId:null,freshStartLock:false,freshStartAt:null};
+            actionBusy:{workout:false,diet:false,water:false,sleep:false},aiAccessToken:null,sleepTimerId:null,sleepBedtime:null,lastDayKey:null,dayWatcherId:null,freshStartLock:false,freshStartAt:null,journeyPage:0};
 
         /* ============================================================
            AURA CORE HELPERS — HOISTED/AVAILABLE BEFORE INITIALIZATION
@@ -3334,7 +3340,17 @@ body.aura-chat-is-open .mobile-aura-orb{
         }
 
         function sourcePoints(source){const dates=new Set((dashboardState.aura_transactions||[]).filter(x=>x.source===source).map(x=>String(x.transaction_date)));return dates.size*25}
-        function renderProgressSection(){
+        function navigateJourneyPage(delta){
+             const days=dashboardState.workout_progress?.days||[];
+             const totalPages=Math.max(1,Math.ceil(days.length/30));
+             auraUI.journeyPage=Math.min(Math.max(Number(auraUI.journeyPage||0)+Number(delta||0),0),totalPages-1);
+             renderProgressSection();
+             requestAnimationFrame(()=>{
+                 document.getElementById('journeyDays')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+             });
+         }
+
+         function renderProgressSection(){
             const tx=dashboardState.aura_transactions||[];
             syncAuraPointsUI();
             const overallStreak=getConsecutiveDayStreaks();
@@ -3345,7 +3361,45 @@ body.aura-chat-is-open .mobile-aura-orb{
             const events=[['Workout','workout','var(--purple-bright)',dashboardState.workout_progress?.completed||0,dashboardState.workout_progress?.total||0,sourcePoints('workout')],['Nutrition','diet','var(--green)',dashboardState.diet_progress?.completed||0,dashboardState.diet_progress?.total||0,sourcePoints('diet')],['Hydration','water','var(--cyan)',new Set(tx.filter(x=>x.source==='water').map(x=>x.transaction_date)).size,null,sourcePoints('water')],['Sleep','sleep','var(--blue)',new Set(tx.filter(x=>x.source==='sleep').map(x=>x.transaction_date)).size,null,sourcePoints('sleep')]];
             document.getElementById('eventProgressContainer').innerHTML=events.map(e=>`<div class="event-card"><span class="section-sub">${e[0]}</span><strong style="color:${e[2]}">${e[5]} AURA</strong><div class="event-points">${e[3]}${e[4]!=null?` / ${e[4]}`:' days completed'}</div></div>`).join('');
             document.getElementById('auraTimeline').innerHTML=tx.slice(0,10).map(x=>`<div class="timeline-row"><span class="section-sub">${formatDate(x.transaction_date)}</span><span>${escapeHtml(x.description||x.source)}</span><strong style="color:var(--purple-bright)">+${Number(x.points||0)}</strong></div>`).join('')||'<div class="section-sub">No Aura transactions yet.</div>';
-            const days=(dashboardState.workout_progress?.days||[]).slice(0,25);document.getElementById('journeyDays').innerHTML=days.map(d=>`<div class="journey-day ${d.completed?'done':''} ${d.workout_date===getTodayISO()?'today':''}">D${d.day_number}<br>${d.completed?'✓':'○'}</div>`).join('');
+            const allDays=(dashboardState.workout_progress?.days||[]).slice().sort((a,b)=>String(a.workout_date||'').localeCompare(String(b.workout_date||'')));
+             const totalDays=allDays.length;
+             const pageSize=30;
+             const totalPages=Math.max(1,Math.ceil(totalDays/pageSize));
+             auraUI.journeyPage=Math.min(Math.max(Number(auraUI.journeyPage||0),0),totalPages-1);
+             const startIndex=auraUI.journeyPage*pageSize;
+             const pageDays=allDays.slice(startIndex,startIndex+pageSize);
+             const planStart=dashboardState.workout_plan?.start_date||allDays[0]?.workout_date||null;
+             const dayNumberForDate=(date,index)=>{
+                 if(!date)return startIndex+index+1;
+                 if(planStart){
+                     const [sy,sm,sd]=String(planStart).split('-').map(Number);
+                     const [y,m,d]=String(date).split('-').map(Number);
+                     if([sy,sm,sd,y,m,d].every(Number.isFinite)){
+                         const startUtc=Date.UTC(sy,sm-1,sd);
+                         const dateUtc=Date.UTC(y,m-1,d);
+                         const diff=Math.round((dateUtc-startUtc)/86400000);
+                         if(diff>=0)return diff+1;
+                     }
+                 }
+                 return startIndex+index+1;
+             };
+             document.getElementById('journeyTitle').textContent=totalDays?`${totalDays}-Day Journey`:'Journey';
+             document.getElementById('journeySubtitle').textContent=totalDays?`Day 1 → Day ${totalDays} • Workout + nutrition plan progress.`:'Workout + nutrition plan progress.';
+             document.getElementById('journeyDays').innerHTML=pageDays.map((d,i)=>{
+                 const dayNumber=dayNumberForDate(d.workout_date,i);
+                 return `<div class="journey-day ${d.completed?'done':''} ${d.workout_date===getTodayISO()?'today':''}">D${dayNumber}<br>${d.completed?'✓':'○'}</div>`;
+             }).join('')||'<div class="section-sub" style="grid-column:1/-1;text-align:center;padding:1rem">No journey days yet.</div>';
+             const nav=document.getElementById('journeyNav');
+             const prev=document.getElementById('journeyPrev');
+             const next=document.getElementById('journeyNext');
+             const label=document.getElementById('journeyPageLabel');
+             if(nav&&prev&&next&&label){
+                 nav.hidden=totalPages<=1;
+                 label.textContent=`${auraUI.journeyPage+1} / ${totalPages}`;
+                 prev.disabled=auraUI.journeyPage<=0;
+                 next.disabled=auraUI.journeyPage>=totalPages-1;
+             }
+             lucide.createIcons();
         }
 
         function badgeSvg(key,locked){const color={fitness_elixir:'#b96cff',health_palette:'#72d65c',i_am_water:'#2bc8ff',calm_sleep:'#7ea6ff'}[key]||'#b96cff';const icon={fitness_elixir:'<path d="M42 10v12M32 14h20M18 24v32M10 30h16M18 46h12M42 46h20M52 24v32"/>',health_palette:'<path d="M50 54c-12-1-22-8-22-21 12 0 21 9 22 21Zm0 0c1-16 8-25 22-30-1 15-8 25-22 30Z"/>',i_am_water:'<path d="M46 10c8 11 16 20 16 28a16 16 0 0 1-32 0c0-8 8-17 16-28Z"/>',calm_sleep:'<path d="M54 18a18 18 0 1 0 8 32A22 22 0 0 1 54 18Zm18 2 2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Z"/>'}[key]||'<circle cx="48" cy="40" r="14"/>';return `<svg class="badge-art" viewBox="0 0 96 96" fill="none" stroke="${locked?'#667085':color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M48 5 80 22v34L48 73 16 56V22L48 5Z" opacity=".5"/><path d="M48 13 72 26v26L48 65 24 52V26L48 13Z" opacity=".8"/>${icon}</svg>`}
