@@ -1325,6 +1325,123 @@ padding:28px;
       }
     }
 
+
+
+    /* MOBILE-ONLY VISUAL FIX — preserves desktop and all functionality */
+    @media (max-width: 640px) {
+      html, body {
+        height: auto !important;
+        min-height: 100% !important;
+        max-height: none !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      .app-viewport {
+        width: 100% !important;
+        height: auto !important;
+        min-height: 100svh !important;
+        max-height: none !important;
+        overflow: visible !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .left-panel {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        padding: max(.9rem, env(safe-area-inset-top)) 1.1rem .55rem !important;
+      }
+
+      .left-panel > header {
+        margin-bottom: .3rem !important;
+      }
+
+      .hero-content {
+        margin-top: .25rem !important;
+        gap: .3rem !important;
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 8.8vw, 2.45rem) !important;
+        line-height: 1.02 !important;
+      }
+
+      .hero-sub {
+        font-size: clamp(.7rem, 2.8vw, .78rem) !important;
+        line-height: 1.25 !important;
+      }
+
+      .right-panel {
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        padding: .35rem .8rem max(.9rem, env(safe-area-inset-bottom)) !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        margin-top: 0 !important;
+      }
+
+      .right-panel .login-glass-card {
+        width: 100% !important;
+        max-width: 440px !important;
+        margin: 0 !important;
+        padding: clamp(.85rem, 3vw, 1.1rem) clamp(.9rem, 4vw, 1.2rem) !important;
+        border-radius: 20px !important;
+        transform: none !important;
+      }
+
+      .login-header {
+        margin-bottom: .7rem !important;
+      }
+
+      .login-title {
+        font-size: clamp(1.45rem, 7vw, 1.7rem) !important;
+        line-height: 1.15 !important;
+      }
+
+      .login-sub {
+        font-size: .78rem !important;
+        line-height: 1.3 !important;
+      }
+
+      .form-group {
+        margin-bottom: .8rem !important;
+        gap: .35rem !important;
+      }
+
+      .form-label {
+        font-size: .76rem !important;
+      }
+
+      .input-control {
+        min-height: 46px !important;
+        padding: .72rem .85rem .72rem 2.65rem !important;
+        font-size: .88rem !important;
+      }
+
+      .options-row {
+        margin-bottom: 1rem !important;
+        font-size: .76rem !important;
+      }
+
+      .btn-submit,
+      .btn-create {
+        min-height: 46px !important;
+        padding: .72rem .8rem !important;
+      }
+
+      .or-divider {
+        margin: .85rem 0 !important;
+      }
+
+      .legal-notice {
+        margin-top: 1rem !important;
+        font-size: .7rem !important;
+      }
+    }
+
 </style>
 </head>
 <body>
