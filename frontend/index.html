@@ -2082,6 +2082,1347 @@ body{overflow-x:hidden;}
       display:none !important;
     }
   </style>
+
+  <style>
+    /* ===== REQUESTED NAV + RISK CTA + MOBILE REFINEMENT ===== */
+    .navbar{
+      display:grid !important;
+      grid-template-columns:1fr auto 1fr !important;
+      align-items:center !important;
+      gap:1rem !important;
+      position:relative !important;
+    }
+    .nav-menu-toggle{
+      justify-self:start;
+      width:40px;
+      height:40px;
+      padding:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      border:1px solid var(--glass-border);
+      border-radius:50%;
+      background:rgba(255,255,255,.045);
+      color:#fff;
+      cursor:pointer;
+      transition:all .25s ease;
+    }
+    .nav-menu-toggle:hover,.nav-menu-toggle[aria-expanded="true"]{
+      border-color:var(--violet-accent);
+      background:rgba(139,92,246,.12);
+      box-shadow:0 0 18px rgba(139,92,246,.18);
+    }
+    .nav-menu-toggle span{
+      width:16px;
+      height:1.5px;
+      border-radius:2px;
+      background:#fff;
+      transition:transform .25s ease,opacity .25s ease;
+    }
+    .nav-menu-toggle[aria-expanded="true"] span:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+    .nav-menu-toggle[aria-expanded="true"] span:nth-child(2){opacity:0}
+    .nav-menu-toggle[aria-expanded="true"] span:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+    .nav-logo{justify-self:center !important;}
+    .nav-login{justify-self:end !important;}
+    .nav-links{
+      position:absolute !important;
+      top:calc(100% + .65rem) !important;
+      left:0 !important;
+      width:min(280px,calc(100vw - 2rem)) !important;
+      padding:.7rem !important;
+      margin:0 !important;
+      display:none !important;
+      flex-direction:column !important;
+      align-items:stretch !important;
+      gap:.25rem !important;
+      list-style:none !important;
+      border:1px solid var(--glass-border) !important;
+      border-radius:18px !important;
+      background:rgba(6,11,24,.88) !important;
+      backdrop-filter:blur(24px);
+      -webkit-backdrop-filter:blur(24px);
+      box-shadow:0 20px 45px rgba(0,0,0,.45),inset 0 0 18px rgba(255,255,255,.025);
+      z-index:120 !important;
+    }
+    .navbar-container.nav-menu-open .nav-links{display:flex !important;}
+    .nav-links li{width:100%;}
+    .nav-links .nav-btn{
+      width:100%;
+      justify-content:space-between;
+      padding:.8rem .85rem;
+      border-radius:12px;
+      font-size:.82rem;
+    }
+    .nav-links .nav-btn:hover,.nav-links .nav-btn.active{background:rgba(139,92,246,.10);}
+    .analytics-risk-cta{
+      align-self:center;
+      margin-top:clamp(.75rem,1.5vh,1.1rem);
+      padding:.72rem 1.35rem;
+      font-size:.82rem;
+      flex:0 0 auto;
+      z-index:3;
+    }
+    @media (max-width:900px){
+      .navbar-container{width:calc(100% - 1.25rem);top:.65rem;}
+      .navbar{padding:.55rem .7rem !important;gap:.5rem !important;}
+      .nav-menu-toggle{width:36px;height:36px;gap:4.5px;}
+      .nav-menu-toggle span{width:15px;}
+      .nav-logo{font-size:.78rem !important;letter-spacing:.12em !important;gap:.4rem !important;}
+      .logo-orb{width:18px;height:18px;}
+      .nav-login{padding:.42rem .7rem !important;font-size:.66rem !important;border-radius:16px;}
+      .nav-links{top:calc(100% + .5rem) !important;width:min(270px,calc(100vw - 1.25rem)) !important;}
+      .analytics-section{padding-top:5.65rem !important;padding-bottom:.9rem !important;}
+      .analytics-section .section-heading{font-size:clamp(1.85rem,7.2vw,2.3rem) !important;}
+      .analytics-section .section-desc{font-size:.84rem !important;line-height:1.48 !important;}
+      .analytics-section .analytics-grid{gap:.65rem !important;margin-top:auto !important;}
+      .analytics-section .stat-card{height:clamp(140px,17vh,165px) !important;padding:.85rem .8rem .75rem !important;}
+      .analytics-section .stat-title{font-size:.72rem !important;min-height:2.2em;}
+      .analytics-section .stat-val{font-size:clamp(1.16rem,5.6vw,1.48rem) !important;}
+      .analytics-section .stat-sub{font-size:.6rem !important;line-height:1.4 !important;min-height:2.9em;}
+      .analytics-section .trust-banner{margin-top:.6rem !important;padding:.6rem .75rem !important;font-size:.64rem !important;}
+      .analytics-risk-cta{margin-top:.55rem;padding:.7rem 1.15rem;font-size:.78rem;}
+    }
+    @media (max-width:480px){
+      .navbar{padding:.5rem .6rem !important;}
+      .nav-menu-toggle{width:34px;height:34px;}
+      .nav-logo{font-size:.74rem !important;}
+      .nav-login{font-size:.62rem !important;padding:.38rem .62rem !important;}
+      .analytics-section{padding-top:5.35rem !important;padding-bottom:.75rem !important;}
+      .analytics-section .section-heading{font-size:1.85rem !important;}
+      .analytics-section .section-desc{font-size:.78rem !important;}
+      .analytics-section .analytics-grid{gap:.5rem !important;}
+      .analytics-section .stat-card{height:132px !important;padding:.72rem .68rem .65rem !important;}
+      .analytics-section .stat-title{font-size:.67rem !important;}
+      .analytics-section .stat-val{font-size:1.1rem !important;}
+      .analytics-section .stat-sub{font-size:.56rem !important;}
+      .analytics-risk-cta{padding:.68rem 1rem;font-size:.74rem;}
+    }
+  </style>
+
+
+<style id="aura-visual-direction-final">
+/* ============================================================
+   AURA VISUAL DIRECTION — FINAL REFINEMENT
+   Scoped to index.html. Keeps the single video/background and
+   existing content/functionality intact while reducing UI weight.
+   ============================================================ */
+:root{
+  --glass-bg:rgba(8,8,18,.46);
+  --glass-border:rgba(255,255,255,.12);
+  --glass-border-hover:rgba(167,139,250,.34);
+}
+
+/* One consistent, restrained glass language. */
+.glass-panel{
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:24px !important;
+  box-shadow:0 18px 45px rgba(0,0,0,.20), inset 0 0 18px rgba(255,255,255,.018) !important;
+  backdrop-filter:blur(18px) !important;
+  -webkit-backdrop-filter:blur(18px) !important;
+}
+
+/* The video stays the environment; overlays are only soft readability zones. */
+.app-section::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+}
+#sec1::before{
+  background:
+    radial-gradient(ellipse 62% 48% at 50% 47%, rgba(2,5,14,.66) 0%, rgba(2,5,14,.36) 48%, transparent 78%),
+    linear-gradient(180deg, rgba(2,5,14,.16) 0%, transparent 25%, transparent 72%, rgba(2,5,14,.16) 100%);
+}
+#sec2::before{
+  background:
+    radial-gradient(ellipse 74% 62% at 50% 48%, rgba(2,5,14,.52) 0%, rgba(2,5,14,.20) 52%, transparent 80%);
+}
+#sec3::before{
+  background:
+    radial-gradient(ellipse 72% 66% at 38% 40%, rgba(2,5,14,.54) 0%, rgba(2,5,14,.20) 52%, transparent 82%);
+}
+#sec1 > *,#sec2 > *,#sec3 > *{position:relative;z-index:1;}
+
+/* ============================================================
+   HERO — editorial composition
+   ============================================================ */
+@media (min-width:901px){
+  #sec1.hero-section{
+    align-items:center !important;
+    justify-content:center !important;
+    padding:7.5rem 5% 5.5rem !important;
+  }
+  #sec1 .hero-content{
+    width:min(900px,100%);
+    max-width:900px !important;
+    margin:0 auto !important;
+    text-align:center !important;
+    align-items:center;
+  }
+  #sec1 .eyebrow{
+    letter-spacing:.24em;
+    font-size:.72rem;
+    margin-bottom:1.15rem;
+  }
+  #sec1 .hero-title{
+    font-size:clamp(3.5rem,6.6vw,5.8rem) !important;
+    line-height:.98 !important;
+    letter-spacing:-.045em !important;
+    margin-bottom:1.45rem !important;
+  }
+  #sec1 .hero-sub{
+    max-width:680px;
+    margin:0 auto 1.8rem !important;
+    font-size:1rem;
+    line-height:1.65;
+    color:rgba(248,250,252,.90);
+    text-shadow:0 2px 22px rgba(0,0,0,.8);
+  }
+  #sec1 .hero-actions{justify-content:center !important;}
+}
+
+/* Replace the heavy feature bar with tiny HUD-like signals. */
+#sec1 .hero-strip{
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  border-radius:0 !important;
+  grid-template-columns:repeat(4,auto) !important;
+  justify-content:center !important;
+  gap:clamp(1.4rem,4vw,4rem) !important;
+  padding:.75rem 0 !important;
+  margin-top:0 !important;
+}
+#sec1 .strip-item{
+  border:0 !important;
+  padding:0 !important;
+  gap:.45rem !important;
+  white-space:nowrap;
+  opacity:.78;
+}
+#sec1 .strip-icon{
+  width:7px !important;
+  height:7px !important;
+  border-radius:50% !important;
+  background:var(--violet-accent) !important;
+  border:0 !important;
+  box-shadow:0 0 10px rgba(139,92,246,.65) !important;
+}
+#sec1 .strip-icon svg{display:none !important;}
+#sec1 .strip-title{
+  font-size:.62rem !important;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:700;
+}
+#sec1 .strip-desc{display:none !important;}
+
+/* ============================================================
+   SECTION 2 — data visualization, not six heavy cards
+   ============================================================ */
+#sec2.analytics-section{
+  justify-content:center !important;
+  padding:7rem 5% 4rem !important;
+}
+#sec2 .section-header{
+  max-width:1200px !important;
+  margin:0 auto 2.1rem !important;
+  text-align:left !important;
+}
+#sec2 .section-tag{
+  font-size:.68rem !important;
+  letter-spacing:.24em !important;
+  color:#a78bfa !important;
+}
+#sec2 .section-heading{
+  font-size:clamp(2.7rem,5vw,4.2rem) !important;
+  line-height:.98 !important;
+  letter-spacing:-.04em !important;
+  margin:.55rem 0 .9rem !important;
+}
+#sec2 .section-desc{
+  max-width:560px !important;
+  font-size:.95rem !important;
+  line-height:1.6 !important;
+  color:rgba(241,245,249,.76) !important;
+}
+#sec2 .analytics-grid{
+  width:min(1200px,100%) !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:0 !important;
+  margin:0 auto !important;
+  border-top:1px solid rgba(255,255,255,.10) !important;
+  border-left:1px solid rgba(255,255,255,.06) !important;
+}
+#sec2 .stat-card{
+  height:clamp(155px,19vh,190px) !important;
+  min-height:0 !important;
+  padding:1.35rem 1.4rem !important;
+  border:0 !important;
+  border-right:1px solid rgba(255,255,255,.09) !important;
+  border-bottom:1px solid rgba(255,255,255,.09) !important;
+  border-radius:0 !important;
+  background:rgba(8,8,18,.10) !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  text-align:left !important;
+  gap:.38rem !important;
+  transition:background .3s ease,border-color .3s ease !important;
+}
+#sec2 .stat-card:hover{
+  transform:none !important;
+  background:rgba(139,92,246,.055) !important;
+  border-color:rgba(167,139,250,.18) !important;
+  box-shadow:none !important;
+}
+#sec2 .stat-title{
+  width:auto !important;
+  min-height:0 !important;
+  justify-content:flex-start !important;
+  font-size:.65rem !important;
+  letter-spacing:.16em !important;
+  line-height:1.2 !important;
+  text-transform:uppercase !important;
+  color:rgba(226,232,240,.68) !important;
+}
+#sec2 .stat-val{
+  width:auto !important;
+  font-size:clamp(2rem,3.2vw,3rem) !important;
+  line-height:.95 !important;
+  font-weight:800 !important;
+  letter-spacing:-.045em !important;
+  color:#fff !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:0 0 24px rgba(255,255,255,.14),0 0 32px rgba(167,139,250,.10) !important;
+}
+#sec2 .stat-sub{
+  width:auto !important;
+  min-height:0 !important;
+  justify-content:flex-start !important;
+  font-size:.68rem !important;
+  line-height:1.35 !important;
+  color:rgba(226,232,240,.52) !important;
+  text-align:left !important;
+}
+#sec2 .trust-banner{
+  width:min(1200px,100%) !important;
+  margin:1.25rem auto 0 !important;
+  padding:.65rem 0 !important;
+  background:transparent !important;
+  border:0 !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+  color:rgba(226,232,240,.52) !important;
+  font-size:.67rem !important;
+}
+#sec2 .trust-banner > div{flex:1;}
+#sec2 .trust-banner span{color:rgba(226,232,240,.52) !important;}
+#sec2 .analytics-risk-cta{
+  margin:1.25rem auto 0 !important;
+  align-self:center !important;
+  background:rgba(139,92,246,.12) !important;
+  border-color:rgba(167,139,250,.58) !important;
+  box-shadow:0 0 22px rgba(139,92,246,.14) !important;
+}
+
+/* ============================================================
+   SECTION 3 — remove the huge vertical dead zone
+   ============================================================ */
+#sec3.health-section{
+  justify-content:center !important;
+  padding:7rem 5% 4rem !important;
+}
+#sec3 .health-split-container{
+  width:min(1200px,100%) !important;
+  height:auto !important;
+  max-height:none !important;
+  margin:0 auto !important;
+  display:grid !important;
+  grid-template-columns:minmax(0,1.08fr) minmax(340px,.72fr) !important;
+  align-items:center !important;
+  gap:clamp(3rem,8vw,8rem) !important;
+}
+#sec3 .health-left-col{
+  width:100% !important;
+  max-width:720px !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+#sec3 .health-left-col .section-tag{
+  font-size:.68rem !important;
+  letter-spacing:.24em !important;
+}
+#sec3 .health-left-col .section-heading{
+  font-size:clamp(3rem,5.2vw,5rem) !important;
+  line-height:.98 !important;
+  letter-spacing:-.045em !important;
+  margin:.55rem 0 1.15rem !important;
+}
+#sec3 .health-left-col .section-desc{
+  max-width:620px !important;
+  font-size:1rem !important;
+  line-height:1.7 !important;
+  color:rgba(241,245,249,.78) !important;
+}
+#sec3 .health-right-col{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  align-items:stretch !important;
+}
+#sec3 .health-cta-box{
+  width:100% !important;
+  max-width:480px !important;
+  margin-left:auto !important;
+  padding:2.2rem 2rem 2rem !important;
+  background:rgba(8,8,18,.30) !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 18px 50px rgba(0,0,0,.18),inset 0 0 20px rgba(255,255,255,.018) !important;
+}
+#sec3 .health-cta-box h3{
+  font-size:1.15rem !important;
+  letter-spacing:.16em !important;
+  text-transform:uppercase !important;
+  margin-bottom:.75rem !important;
+}
+#sec3 .health-cta-box .section-desc{
+  font-size:.86rem !important;
+  line-height:1.6 !important;
+  color:rgba(241,245,249,.72) !important;
+}
+#sec3 .btn-cta{
+  margin-top:.5rem !important;
+  box-shadow:0 0 28px rgba(139,92,246,.26) !important;
+}
+
+/* Keep the cinematic scroll language without adding new visual blocks. */
+@media (prefers-reduced-motion:no-preference){
+  #sec1::after,#sec2::after,#sec3::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:18%;pointer-events:none;z-index:0;
+    background:linear-gradient(180deg,transparent,rgba(2,5,14,.18));
+  }
+}
+
+/* ============================================================
+   MOBILE — clean, standard proportions and no Section 3 gap
+   ============================================================ */
+@media (max-width:900px){
+  #sec1.hero-section{
+    justify-content:center !important;
+    align-items:center !important;
+    padding:5.5rem 1.15rem 2rem !important;
+  }
+  #sec1 .hero-content{
+    width:100% !important;
+    max-width:34rem !important;
+    margin:0 auto !important;
+    text-align:center !important;
+  }
+  #sec1 .eyebrow{
+    font-size:.58rem !important;
+    letter-spacing:.20em !important;
+    margin-bottom:.8rem !important;
+  }
+  #sec1 .hero-title{
+    font-size:clamp(2.35rem,10.8vw,3.45rem) !important;
+    line-height:1 !important;
+    letter-spacing:-.04em !important;
+    margin-bottom:1rem !important;
+  }
+  #sec1 .hero-sub{
+    max-width:30rem !important;
+    margin:0 auto 1.2rem !important;
+    font-size:.82rem !important;
+    line-height:1.5 !important;
+    color:rgba(248,250,252,.86) !important;
+    text-shadow:0 2px 18px rgba(0,0,0,.75) !important;
+  }
+  #sec1 .hero-actions{justify-content:center !important;align-items:center !important;}
+  #sec1 .btn-primary{padding:.72rem 1.25rem !important;font-size:.74rem !important;}
+  #sec1 .hero-strip{display:none !important;}
+
+  #sec2.analytics-section{
+    justify-content:flex-start !important;
+    padding:5.7rem 1rem 1.25rem !important;
+  }
+  #sec2 .section-header{
+    margin:0 0 1.15rem !important;
+    text-align:center !important;
+  }
+  #sec2 .section-tag{font-size:.58rem !important;letter-spacing:.18em !important;}
+  #sec2 .section-heading{
+    font-size:clamp(1.9rem,8.4vw,2.5rem) !important;
+    line-height:1 !important;
+    margin:.45rem 0 .65rem !important;
+  }
+  #sec2 .section-desc{
+    max-width:31rem !important;
+    font-size:.74rem !important;
+    line-height:1.45 !important;
+  }
+  #sec2 .analytics-grid{
+    width:100% !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    grid-template-rows:repeat(3,minmax(0,1fr)) !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    border-top:1px solid rgba(255,255,255,.09) !important;
+    border-left:0 !important;
+  }
+  #sec2 .stat-card{
+    height:auto !important;
+    min-height:92px !important;
+    padding:.72rem .5rem !important;
+    border-right:1px solid rgba(255,255,255,.08) !important;
+    border-bottom:1px solid rgba(255,255,255,.08) !important;
+    background:transparent !important;
+    border-radius:0 !important;
+    gap:.22rem !important;
+  }
+  #sec2 .stat-card:nth-child(even){border-right:0 !important;}
+  #sec2 .stat-title{
+    font-size:.56rem !important;
+    letter-spacing:.10em !important;
+  }
+  #sec2 .stat-val{font-size:clamp(1.45rem,6.6vw,2rem) !important;}
+  #sec2 .stat-sub{font-size:.50rem !important;line-height:1.25 !important;}
+  #sec2 .trust-banner{
+    margin:.7rem auto 0 !important;
+    padding:.25rem 0 !important;
+    font-size:.52rem !important;
+    line-height:1.25 !important;
+    text-align:center !important;
+  }
+  #sec2 .trust-banner > span{display:none !important;}
+  #sec2 .analytics-risk-cta{
+    margin:.75rem auto 0 !important;
+    padding:.65rem 1rem !important;
+    font-size:.68rem !important;
+  }
+
+  #sec3.health-section{
+    justify-content:center !important;
+    padding:5.7rem 1rem 1.5rem !important;
+  }
+  #sec3 .health-split-container{
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    display:flex !important;
+    flex-direction:column !important;
+    justify-content:center !important;
+    align-items:stretch !important;
+    gap:clamp(1.7rem,5vh,2.8rem) !important;
+    margin:0 !important;
+  }
+  #sec3 .health-left-col{
+    width:100% !important;
+    max-width:none !important;
+    padding:0 !important;
+    margin:0 !important;
+    align-items:center !important;
+    text-align:center !important;
+  }
+  #sec3 .health-left-col .section-tag{font-size:.58rem !important;letter-spacing:.18em !important;}
+  #sec3 .health-left-col .section-heading{
+    font-size:clamp(2rem,9.4vw,2.8rem) !important;
+    line-height:1 !important;
+    margin:.45rem 0 .75rem !important;
+    text-align:center !important;
+  }
+  #sec3 .health-left-col .section-desc{
+    max-width:31rem !important;
+    margin:0 auto !important;
+    font-size:.76rem !important;
+    line-height:1.5 !important;
+    text-align:center !important;
+  }
+  #sec3 .health-right-col{
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    align-items:center !important;
+  }
+  #sec3 .health-cta-box{
+    width:min(100%,31rem) !important;
+    max-width:none !important;
+    margin:0 auto !important;
+    padding:1.25rem 1rem 1.1rem !important;
+    border-radius:20px !important;
+    background:rgba(8,8,18,.30) !important;
+  }
+  #sec3 .health-cta-box h3{
+    font-size:.88rem !important;
+    letter-spacing:.11em !important;
+    margin-bottom:.5rem !important;
+  }
+  #sec3 .health-cta-box .section-desc{
+    font-size:.66rem !important;
+    line-height:1.45 !important;
+    margin-bottom:.45rem !important;
+  }
+  #sec3 .btn-cta{padding:.68rem 1.05rem !important;font-size:.68rem !important;margin-top:.2rem !important;}
+}
+
+@media (max-width:380px){
+  #sec1 .hero-title{font-size:2.15rem !important;}
+  #sec2 .stat-card{min-height:84px !important;padding:.6rem .38rem !important;}
+  #sec2 .stat-title{font-size:.51rem !important;}
+  #sec2 .stat-val{font-size:1.32rem !important;}
+  #sec2 .stat-sub{font-size:.45rem !important;}
+  #sec3 .health-split-container{gap:1.35rem !important;}
+  #sec3 .health-cta-box{padding:.95rem .8rem .9rem !important;}
+}
+</style>
+
+
+<style id="aura-final-section2-section3-fix">
+/* ============================================================
+   FINAL TARGETED FIX — SECTION 2 CTA + MOBILE SECTION 3
+   CSS-only: preserve existing content, video, nav and JS.
+   ============================================================ */
+
+/* SECTION 2 — center every heading/text element and keep CTA inside viewport */
+#sec2.analytics-section{
+  justify-content:flex-start !important;
+  padding-top:clamp(5.5rem,8vh,7rem) !important;
+  padding-bottom:clamp(.8rem,1.8vh,1.4rem) !important;
+}
+
+#sec2 .section-header{
+  width:min(1200px,100%) !important;
+  margin:0 auto .9rem !important;
+  text-align:center !important;
+  align-self:center !important;
+}
+
+#sec2 .section-tag,
+#sec2 .section-heading,
+#sec2 .section-desc{
+  width:100% !important;
+  text-align:center !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+#sec2 .section-tag{
+  display:block !important;
+  margin-bottom:.35rem !important;
+}
+
+#sec2 .section-heading{
+  font-size:clamp(2.25rem,3.8vw,3.15rem) !important;
+  line-height:.98 !important;
+  margin-top:.2rem !important;
+  margin-bottom:.65rem !important;
+}
+
+#sec2 .section-desc{
+  max-width:680px !important;
+  font-size:.9rem !important;
+  line-height:1.42 !important;
+}
+
+#sec2 .analytics-grid{
+  width:min(1200px,100%) !important;
+  margin:.55rem auto 0 !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:.7rem !important;
+  align-self:center !important;
+}
+
+#sec2 .stat-card{
+  height:clamp(142px,17vh,158px) !important;
+  min-height:0 !important;
+  padding:1rem .9rem !important;
+}
+
+#sec2 .stat-title{
+  font-size:.78rem !important;
+}
+
+#sec2 .stat-val{
+  font-size:clamp(1.55rem,2.5vw,2rem) !important;
+}
+
+#sec2 .stat-sub{
+  font-size:.64rem !important;
+}
+
+#sec2 .trust-banner{
+  width:min(1200px,100%) !important;
+  margin:.65rem auto 0 !important;
+  padding:.25rem 0 !important;
+  min-height:0 !important;
+  align-self:center !important;
+}
+
+#sec2 .analytics-risk-cta{
+  position:relative !important;
+  display:inline-flex !important;
+  align-self:center !important;
+  width:auto !important;
+  margin:.6rem auto 0 !important;
+  padding:.68rem 1.2rem !important;
+  font-size:.76rem !important;
+  line-height:1 !important;
+  z-index:5 !important;
+}
+
+/* SECTION 3 — eliminate the vertical dead zone */
+#sec3.health-section{
+  justify-content:center !important;
+  padding-top:clamp(5.4rem,7vh,6.5rem) !important;
+  padding-bottom:clamp(1rem,2vh,1.6rem) !important;
+}
+
+#sec3 .health-split-container{
+  height:auto !important;
+  min-height:0 !important;
+  margin:0 auto !important;
+  justify-content:center !important;
+  align-items:center !important;
+  gap:clamp(1.5rem,3.5vh,2.5rem) !important;
+}
+
+#sec3 .health-left-col{
+  justify-content:flex-start !important;
+  align-items:center !important;
+  text-align:center !important;
+  padding:0 !important;
+  margin:0 !important;
+}
+
+#sec3 .health-left-col .section-tag,
+#sec3 .health-left-col .section-heading,
+#sec3 .health-left-col .section-desc{
+  text-align:center !important;
+}
+
+#sec3 .health-left-col .section-heading{
+  margin:.4rem 0 .65rem !important;
+}
+
+#sec3 .health-left-col .section-desc{
+  margin:0 auto !important;
+}
+
+#sec3 .health-right-col{
+  width:min(700px,100%) !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:0 !important;
+  align-items:center !important;
+}
+
+#sec3 .health-cta-box{
+  margin:0 auto !important;
+}
+
+/* Mobile: compact composition, no huge gap between heading and CTA */
+@media (max-width:900px){
+  #sec2.analytics-section{
+    padding:5.25rem 1rem .75rem !important;
+  }
+
+  #sec2 .section-header{
+    margin-bottom:.6rem !important;
+  }
+
+  #sec2 .section-tag{
+    font-size:.56rem !important;
+    letter-spacing:.18em !important;
+  }
+
+  #sec2 .section-heading{
+    font-size:clamp(1.72rem,7.5vw,2.15rem) !important;
+    line-height:1 !important;
+    margin:.3rem 0 .5rem !important;
+  }
+
+  #sec2 .section-desc{
+    font-size:.7rem !important;
+    line-height:1.4 !important;
+    max-width:31rem !important;
+  }
+
+  #sec2 .analytics-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:.45rem !important;
+    margin:.45rem auto 0 !important;
+  }
+
+  #sec2 .stat-card{
+    height:clamp(92px,12vh,112px) !important;
+    padding:.62rem .55rem !important;
+  }
+
+  #sec2 .stat-title{
+    font-size:.53rem !important;
+    min-height:0 !important;
+  }
+
+  #sec2 .stat-val{
+    font-size:clamp(1.15rem,5.8vw,1.45rem) !important;
+  }
+
+  #sec2 .stat-sub{
+    font-size:.47rem !important;
+    min-height:0 !important;
+  }
+
+  #sec2 .trust-banner{
+    margin:.45rem auto 0 !important;
+    padding:0 !important;
+    font-size:.48rem !important;
+  }
+
+  #sec2 .analytics-risk-cta{
+    margin:.45rem auto 0 !important;
+    padding:.62rem .95rem !important;
+    font-size:.65rem !important;
+  }
+
+  #sec3.health-section{
+    justify-content:center !important;
+    padding:5.15rem 1rem 1rem !important;
+  }
+
+  #sec3 .health-split-container{
+    gap:1.25rem !important;
+    justify-content:center !important;
+  }
+
+  #sec3 .health-left-col .section-tag{
+    font-size:.56rem !important;
+    letter-spacing:.17em !important;
+  }
+
+  #sec3 .health-left-col .section-heading{
+    font-size:clamp(1.8rem,8.5vw,2.35rem) !important;
+    line-height:1 !important;
+    margin:.3rem 0 .55rem !important;
+  }
+
+  #sec3 .health-left-col .section-desc{
+    max-width:30rem !important;
+    font-size:.72rem !important;
+    line-height:1.42 !important;
+  }
+
+  #sec3 .health-right-col{
+    margin:0 !important;
+  }
+
+  #sec3 .health-cta-box{
+    width:min(100%,31rem) !important;
+    padding:1.05rem .9rem .95rem !important;
+    border-radius:18px !important;
+  }
+
+  #sec3 .health-cta-box h3{
+    font-size:.84rem !important;
+    margin-bottom:.4rem !important;
+  }
+
+  #sec3 .health-cta-box .section-desc{
+    font-size:.62rem !important;
+    line-height:1.4 !important;
+    margin-bottom:.4rem !important;
+  }
+
+  #sec3 .btn-cta{
+    padding:.62rem 1rem !important;
+    font-size:.64rem !important;
+    margin-top:.1rem !important;
+  }
+}
+
+@media (max-width:480px){
+  #sec2.analytics-section{
+    padding-top:5rem !important;
+  }
+
+  #sec2 .section-heading{
+    font-size:1.68rem !important;
+  }
+
+  #sec2 .section-desc{
+    font-size:.66rem !important;
+  }
+
+  #sec2 .stat-card{
+    height:88px !important;
+    padding:.55rem .5rem !important;
+  }
+
+  #sec2 .stat-title{
+    font-size:.50rem !important;
+  }
+
+  #sec2 .stat-val{
+    font-size:1.08rem !important;
+  }
+
+  #sec2 .stat-sub{
+    font-size:.44rem !important;
+  }
+
+  #sec2 .analytics-risk-cta{
+    padding:.58rem .88rem !important;
+    font-size:.61rem !important;
+  }
+
+  #sec3.health-section{
+    padding-top:4.9rem !important;
+  }
+
+  #sec3 .health-split-container{
+    gap:1.05rem !important;
+  }
+
+  #sec3 .health-left-col .section-heading{
+    font-size:1.75rem !important;
+  }
+
+  #sec3 .health-left-col .section-desc{
+    font-size:.68rem !important;
+  }
+
+  #sec3 .health-cta-box{
+    padding:.95rem .8rem .85rem !important;
+  }
+}
+</style>
+
+<style id="aura-hard-mobile-section2-section3-fix">
+/* ============================================================
+   HARD FIX — SECTION 2 + SECTION 3 MOBILE
+   ============================================================ */
+
+/* SECTION 2 — every heading/value is centered */
+#sec2.analytics-section .section-header,
+#sec2.analytics-section .section-tag,
+#sec2.analytics-section .section-heading,
+#sec2.analytics-section .section-desc,
+#sec2.analytics-section .stat-title,
+#sec2.analytics-section .stat-val,
+#sec2.analytics-section .stat-sub {
+  text-align: center !important;
+}
+
+#sec2.analytics-section .section-header {
+  align-self: center !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+#sec2.analytics-section .stat-title,
+#sec2.analytics-section .stat-val,
+#sec2.analytics-section .stat-sub {
+  justify-content: center !important;
+  align-self: center !important;
+}
+
+/* ALL SECTION 2 NUMBERS — neon red */
+#sec2.analytics-section .stat-val {
+  color: #ff2b2b !important;
+  text-shadow:
+    0 0 5px rgba(255,43,43,.95),
+    0 0 12px rgba(255,43,43,.85),
+    0 0 24px rgba(255,43,43,.65),
+    0 0 42px rgba(255,20,20,.42) !important;
+  filter: drop-shadow(0 0 8px rgba(255,35,35,.45));
+}
+
+/* ============================================================
+   MOBILE — SECTION 2
+   Keep the complete section inside the viewport so the CTA
+   cannot be pushed below the fold.
+   ============================================================ */
+@media (max-width: 900px) {
+  #sec2.analytics-section {
+    justify-content: flex-start !important;
+    padding: 5rem 1rem .8rem !important;
+  }
+
+  #sec2.analytics-section .section-header {
+    width: 100% !important;
+    margin: 0 auto .65rem !important;
+  }
+
+  #sec2.analytics-section .section-tag {
+    font-size: .56rem !important;
+    line-height: 1.1 !important;
+    margin-bottom: .25rem !important;
+  }
+
+  #sec2.analytics-section .section-heading {
+    font-size: clamp(1.7rem, 7.5vw, 2.25rem) !important;
+    line-height: .98 !important;
+    margin: .2rem 0 .45rem !important;
+  }
+
+  #sec2.analytics-section .section-desc {
+    max-width: 32rem !important;
+    font-size: .72rem !important;
+    line-height: 1.35 !important;
+  }
+
+  #sec2.analytics-section .analytics-grid {
+    width: 100% !important;
+    margin: .35rem auto 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .45rem !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    height: clamp(92px, 11.5vh, 112px) !important;
+    min-height: 0 !important;
+    padding: .55rem .45rem !important;
+  }
+
+  #sec2.analytics-section .stat-title {
+    font-size: .52rem !important;
+    line-height: 1.15 !important;
+    min-height: 0 !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    font-size: clamp(1.2rem, 6vw, 1.55rem) !important;
+    line-height: 1 !important;
+  }
+
+  #sec2.analytics-section .stat-sub {
+    font-size: .46rem !important;
+    line-height: 1.2 !important;
+    min-height: 0 !important;
+  }
+
+  #sec2.analytics-section .trust-banner {
+    margin: .4rem auto 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+    font-size: .47rem !important;
+    line-height: 1.2 !important;
+  }
+
+  #sec2.analytics-section .analytics-risk-cta {
+    display: inline-flex !important;
+    align-self: center !important;
+    margin: .45rem auto 0 !important;
+    padding: .62rem 1rem !important;
+    font-size: .66rem !important;
+    line-height: 1 !important;
+  }
+
+  /* ==========================================================
+     SECTION 3 — HARD RESET OF THE SPACE-BETWEEN / 100% HEIGHT
+     that was creating the giant vertical gap.
+     ========================================================== */
+  #sec3.health-section {
+    justify-content: center !important;
+    align-items: center !important;
+    padding: 4.9rem 1rem .9rem !important;
+  }
+
+  #sec3.health-section .health-split-container {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0 !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
+
+  #sec3.health-section .health-left-col {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #sec3.health-section .health-left-col .section-tag {
+    font-size: .55rem !important;
+    line-height: 1.1 !important;
+    margin: 0 0 .3rem !important;
+  }
+
+  #sec3.health-section .health-left-col .section-heading {
+    width: 100% !important;
+    font-size: clamp(1.8rem, 8.5vw, 2.35rem) !important;
+    line-height: .98 !important;
+    margin: 0 0 .42rem !important;
+    text-align: center !important;
+  }
+
+  #sec3.health-section .health-left-col .section-desc {
+    width: 100% !important;
+    max-width: 31rem !important;
+    margin: 0 auto !important;
+    font-size: .72rem !important;
+    line-height: 1.38 !important;
+    text-align: center !important;
+  }
+
+  /* The carousel is already not shown; force zero footprint. */
+  #sec3.health-section .carousel-stage,
+  #sec3.health-section .carousel-nav {
+    display: none !important;
+    visibility: hidden !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  #sec3.health-section .health-right-col {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    flex: 0 0 auto !important;
+    margin: .55rem 0 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  #sec3.health-section .health-cta-box {
+    width: min(100%, 31rem) !important;
+    max-width: none !important;
+    margin: 0 auto !important;
+    padding: 1rem .9rem .9rem !important;
+    border-radius: 18px !important;
+    text-align: center !important;
+  }
+
+  #sec3.health-section .health-cta-box h3 {
+    font-size: .84rem !important;
+    line-height: 1.1 !important;
+    margin: 0 0 .35rem !important;
+  }
+
+  #sec3.health-section .health-cta-box .section-desc {
+    font-size: .61rem !important;
+    line-height: 1.35 !important;
+    margin: 0 0 .35rem !important;
+  }
+
+  #sec3.health-section .health-cta-box .btn-cta {
+    margin: .05rem auto 0 !important;
+    padding: .62rem 1rem !important;
+    font-size: .64rem !important;
+  }
+}
+
+/* Smaller phones — still compact, but not microscopic. */
+@media (max-width: 480px) {
+  #sec2.analytics-section {
+    padding-top: 4.7rem !important;
+  }
+
+  #sec2.analytics-section .section-heading {
+    font-size: 1.72rem !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    height: 86px !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    font-size: 1.15rem !important;
+  }
+
+  #sec2.analytics-section .analytics-risk-cta {
+    padding: .58rem .9rem !important;
+    font-size: .62rem !important;
+  }
+
+  #sec3.health-section {
+    padding-top: 4.65rem !important;
+  }
+
+  #sec3.health-section .health-split-container {
+    gap: 0 !important;
+  }
+
+  #sec3.health-section .health-left-col .section-heading {
+    font-size: 1.78rem !important;
+  }
+
+  #sec3.health-section .health-left-col .section-desc {
+    font-size: .67rem !important;
+  }
+
+  #sec3.health-section .health-right-col {
+    margin-top: .45rem !important;
+  }
+
+  #sec3.health-section .health-cta-box {
+    padding: .9rem .75rem .82rem !important;
+  }
+}
+</style>
+
+
+<style id="aura-numbers-mobile-relaxed-fix">
+/* ============================================================
+   MOBILE ONLY — NUMBERS SECTION RELAXED FIT
+   Only affects Section 2. No other section/layout/functionality.
+   ============================================================ */
+@media (max-width: 900px) {
+  #sec2.analytics-section {
+    padding: 5.35rem 1rem 1.15rem !important;
+    justify-content: flex-start !important;
+  }
+
+  #sec2.analytics-section .section-header {
+    width: 100% !important;
+    margin: 0 auto .9rem !important;
+    padding: 0 .35rem !important;
+  }
+
+  #sec2.analytics-section .section-tag {
+    font-size: .62rem !important;
+    line-height: 1.2 !important;
+    margin-bottom: .4rem !important;
+    letter-spacing: .13em !important;
+  }
+
+  #sec2.analytics-section .section-heading {
+    font-size: clamp(2rem, 8.4vw, 2.5rem) !important;
+    line-height: 1.03 !important;
+    margin: 0 0 .65rem !important;
+  }
+
+  #sec2.analytics-section .section-desc {
+    max-width: 34rem !important;
+    font-size: .84rem !important;
+    line-height: 1.48 !important;
+  }
+
+  #sec2.analytics-section .analytics-grid {
+    width: 100% !important;
+    margin: .15rem auto 0 !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: .72rem !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    height: clamp(138px, 17vh, 166px) !important;
+    min-height: 0 !important;
+    padding: .9rem .78rem !important;
+    border: 1px solid rgba(255,255,255,.72) !important;
+    box-shadow:
+      0 0 10px rgba(255,255,255,.10),
+      0 0 20px rgba(255,35,35,.16),
+      inset 0 0 14px rgba(255,255,255,.035) !important;
+  }
+
+  #sec2.analytics-section .stat-title {
+    font-size: .75rem !important;
+    line-height: 1.2 !important;
+    min-height: 2.3em !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    font-size: clamp(1.35rem, 6.6vw, 1.7rem) !important;
+    line-height: 1.05 !important;
+    color: #ff3030 !important;
+    -webkit-text-stroke: 1px rgba(255,255,255,.96);
+    text-shadow:
+      0 0 5px rgba(255,35,35,1),
+      0 0 12px rgba(255,35,35,.95),
+      0 0 24px rgba(255,35,35,.78),
+      0 0 42px rgba(255,20,20,.5) !important;
+    filter: drop-shadow(0 0 7px rgba(255,35,35,.62));
+  }
+
+  #sec2.analytics-section .stat-sub {
+    font-size: .61rem !important;
+    line-height: 1.35 !important;
+    min-height: 2.7em !important;
+  }
+
+  #sec2.analytics-section .trust-banner {
+    margin: .78rem auto 0 !important;
+    padding: .15rem .4rem !important;
+    font-size: .61rem !important;
+    line-height: 1.35 !important;
+  }
+
+  #sec2.analytics-section .analytics-risk-cta {
+    margin: .7rem auto 0 !important;
+    padding: .72rem 1.15rem !important;
+    font-size: .72rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #sec2.analytics-section {
+    padding: 5rem .9rem 1rem !important;
+  }
+
+  #sec2.analytics-section .section-header {
+    margin-bottom: .8rem !important;
+  }
+
+  #sec2.analytics-section .section-heading {
+    font-size: 2rem !important;
+  }
+
+  #sec2.analytics-section .section-desc {
+    font-size: .8rem !important;
+  }
+
+  #sec2.analytics-section .analytics-grid {
+    gap: .62rem !important;
+  }
+
+  #sec2.analytics-section .stat-card {
+    height: 142px !important;
+    padding: .82rem .68rem !important;
+  }
+
+  #sec2.analytics-section .stat-title {
+    font-size: .72rem !important;
+  }
+
+  #sec2.analytics-section .stat-val {
+    font-size: 1.38rem !important;
+  }
+
+  #sec2.analytics-section .stat-sub {
+    font-size: .59rem !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2131,12 +3472,16 @@ body{overflow-x:hidden;}
   <!-- ================= NAV BAR ================= -->
   <div class="navbar-container" id="navBarWrap">
     <nav class="navbar">
+      <button class="nav-menu-toggle" id="navMenuToggle" type="button" aria-expanded="false" aria-controls="navMenuLinks" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </button>
+
       <a href="#sec1" class="nav-logo" aria-label="Aura home">
         <div class="logo-orb"></div>
         AURA
       </a>
 
-      <ul class="nav-links">
+      <ul class="nav-links" id="navMenuLinks">
         <li>
           <button class="nav-btn" id="btnFeatures" aria-expanded="false" aria-controls="dropdownSlab">
             Features 
@@ -2234,6 +3579,11 @@ body{overflow-x:hidden;}
       <div><span>These numbers represent real people, real struggles, and real lives.</span></div>
       <span>Data from trusted global health organizations.</span>
     </div>
+
+    <a href="#sec3" class="btn-primary analytics-risk-cta" id="btnRiskAssessment">
+      Understand Your Health Risk
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
   </section>
 
   <!-- ================= SECTION 3: UNDERSTAND YOUR HEALTH (50/50 SPLIT) ================= -->
@@ -2555,6 +3905,19 @@ body{overflow-x:hidden;}
     }
 
     function initEvents() {
+      // Hamburger navigation
+      const navMenuToggle = document.getElementById('navMenuToggle');
+      const navBarWrap = document.getElementById('navBarWrap');
+      if (navMenuToggle && navBarWrap) {
+        navMenuToggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = navBarWrap.classList.toggle('nav-menu-open');
+          navMenuToggle.setAttribute('aria-expanded', String(isOpen));
+          navMenuToggle.setAttribute('aria-label', isOpen ? 'Close navigation menu' : 'Open navigation menu');
+          if (!isOpen) openSlab(null);
+        });
+      }
+
       // Navbar Dropdowns
       ['Features', 'Insights', 'About'].forEach(item => {
         document.getElementById('btn' + item).addEventListener('click', (e) => {
@@ -2575,12 +3938,22 @@ body{overflow-x:hidden;}
       document.addEventListener('click', (e) => {
         if (!e.target.closest('.navbar-container') && !e.target.closest('#dropdownSlab')) {
           openSlab(null);
+          if (navBarWrap && navMenuToggle) {
+            navBarWrap.classList.remove('nav-menu-open');
+            navMenuToggle.setAttribute('aria-expanded', 'false');
+            navMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+          }
         }
       });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
           openSlab(null);
+          if (navBarWrap && navMenuToggle) {
+            navBarWrap.classList.remove('nav-menu-open');
+            navMenuToggle.setAttribute('aria-expanded', 'false');
+            navMenuToggle.setAttribute('aria-label', 'Open navigation menu');
+          }
           return;
         }
 
