@@ -2048,8 +2048,85 @@ body{overflow-x:hidden;}
 }
 </style>
 
+<style>
+
+    /* AURA INDEX — SINGLE LOOPING VIDEO BACKGROUND */
+    body{
+      background:transparent !important;
+    }
+    .index-video-background{
+      position:fixed !important;
+      inset:0 !important;
+      width:100% !important;
+      height:100% !important;
+      object-fit:cover !important;
+      z-index:0 !important;
+      pointer-events:none !important;
+      display:block !important;
+    }
+    .app-shell,
+    .app-section,
+    .footer-flow{
+      position:relative;
+      z-index:1;
+      background-color:transparent !important;
+      background-image:none !important;
+    }
+    .section-bg,
+    .hero-bg,
+    .analytics-bg,
+    .health-bg{
+      display:none !important;
+    }
+    .section-progress{
+      display:none !important;
+    }
+  </style>
 </head>
 <body>
+
+    <!-- AURA INDEX — SINGLE PERSISTENT VIDEO BACKGROUND -->
+    <video id="indexVideoBackground"
+           class="index-video-background"
+           autoplay
+           muted
+           loop
+           playsinline
+           preload="auto"
+           aria-hidden="true">
+      <source id="indexVideoSource" src="assets/videos/index-desktop.mp4" type="video/mp4">
+    </video>
+    <script>
+      (function initIndexVideoBackground(){
+        const video = document.getElementById('indexVideoBackground');
+        const source = document.getElementById('indexVideoSource');
+        if (!video || !source) return;
+
+        const desktopSrc = 'assets/videos/index-desktop.mp4';
+        const mobileSrc = 'assets/videos/index-mobile.mp4';
+
+        function setVideoSource(){
+          const nextSrc = window.matchMedia('(max-width: 900px)').matches ? mobileSrc : desktopSrc;
+          if (source.getAttribute('src') === nextSrc) {
+            video.play().catch(() => {});
+            return;
+          }
+          source.setAttribute('src', nextSrc);
+          video.load();
+          video.play().catch(() => {});
+        }
+
+        setVideoSource();
+
+        const mediaQuery = window.matchMedia('(max-width: 900px)');
+        if (typeof mediaQuery.addEventListener === 'function') {
+          mediaQuery.addEventListener('change', setVideoSource);
+        } else if (typeof mediaQuery.addListener === 'function') {
+          mediaQuery.addListener(setVideoSource);
+        }
+      })();
+    </script>
+
 
   <!-- ================= NAV BAR ================= -->
   <div class="navbar-container" id="navBarWrap">
@@ -2092,7 +2169,6 @@ body{overflow-x:hidden;}
 
   <!-- ================= SECTION 1: HERO ================= -->
   <section class="app-section hero-section" id="sec1">
-    <div class="section-bg hero-bg"></div>
 
     <div class="hero-content">
       <div class="eyebrow">AI-POWERED WELLNESS OPERATING SYSTEM</div>
@@ -2143,16 +2219,6 @@ body{overflow-x:hidden;}
 
   <!-- ================= SECTION 2: ANALYTICS ================= -->
   <section class="app-section analytics-section" id="sec2">
-    <div class="section-bg analytics-bg"></div>
-
-    <!-- DYNAMIC SCROLL INDICATOR BARS -->
-    <div class="section-progress">
-      <div class="progress-bars">
-        <div class="p-bar" id="indicator1" onclick="navigateToSection(1)"></div>
-        <div class="p-bar" id="indicator2" onclick="navigateToSection(2)"></div>
-        <div class="p-bar" id="indicator3" onclick="navigateToSection(3)"></div>
-      </div>
-    </div>
 
     <div class="section-header">
       <div class="section-tag">• THE BIGGER PICTURE<BR></div>
@@ -2172,16 +2238,6 @@ body{overflow-x:hidden;}
 
   <!-- ================= SECTION 3: UNDERSTAND YOUR HEALTH (50/50 SPLIT) ================= -->
   <section class="app-section health-section" id="sec3">
-    <div class="section-bg health-bg"></div>
-
-    <!-- DYNAMIC SCROLL INDICATOR BARS -->
-    <div class="section-progress">
-      <div class="progress-bars">
-        <div class="p-bar" id="indicator1_s3" onclick="navigateToSection(1)"></div>
-        <div class="p-bar" id="indicator2_s3" onclick="navigateToSection(2)"></div>
-        <div class="p-bar active" id="indicator3_s3" onclick="navigateToSection(3)"></div>
-      </div>
-    </div>
 
     <div class="health-split-container">
       <!-- LEFT COL: Heading & Carousel -->
