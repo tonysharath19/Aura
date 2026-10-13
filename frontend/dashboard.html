@@ -2017,6 +2017,10 @@ body.aura-chat-is-open .mobile-aura-orb{
 /* FINAL LOAD VISIBILITY FIX — Ask AURA must not appear during dashboard loading */
 .aura-floating-widget{display:none!important;visibility:hidden!important;pointer-events:none!important}
 body.aura-ready .aura-floating-widget{display:block!important;visibility:visible!important;pointer-events:auto!important}
+/* Desktop already has the sidebar Ask AURA launcher; keep the floating launcher mobile-only. */
+@media (min-width:769px){
+    body.aura-ready .aura-floating-widget{display:none!important;visibility:hidden!important;pointer-events:none!important}
+}
 @media(max-width:768px){
   body.aura-ready .aura-floating-widget{right:12px!important;left:auto!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;transform:none!important}
 }
